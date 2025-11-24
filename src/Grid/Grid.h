@@ -1,1 +1,0 @@
-//struct grid buat BFS sama DFS
