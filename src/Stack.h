@@ -7,8 +7,13 @@ struct Node {
 
 struct Stack {
     Node* Top;
-    
-};template <class T>
+
+    int peek() {
+        return Top->val;
+    }
+};
+
+template <class T>
 class Stacka {
     T val;
     Stacka<T> *head, *tail;
