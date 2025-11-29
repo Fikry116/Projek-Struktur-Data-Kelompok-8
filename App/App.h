@@ -162,20 +162,21 @@ public:
                     window.draw(BFS);
                     break;
                 case AppState::BFS: //ketika app state adalah BFS, tampilkan BFS
-                    if (!Run) {
+                    // if (!Run) {
                         myGrid.DrawGrid(window);
-                        Run = true;
-                    }
+                        // Run = true;
+                    // }
                     // std::cout << "BFS\n";
                     // window.draw(sf::RectangleShape(sf::Vector2f({200, 300})));
                     break;
-                    case AppState::DFS: //ketika app state adalah DFS, tampilkan DFS
+                case AppState::DFS: //ketika app state adalah DFS, tampilkan DFS
                     // std::cout << "DFS\n";
                     // myGrid.DrawGrid(window);
                     break;
                 default:
                     break;
             }
+            // std::cout << "DFS\n";
             window.display(); //mengupdate tampilan window.
         }
     }

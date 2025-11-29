@@ -1,5 +1,5 @@
 #include "App.h"
-#include <SFML/Graphics.hpp>
+// #include <SFML/Graphics.hpp>
 int main() {
     App application(800, 600);
 

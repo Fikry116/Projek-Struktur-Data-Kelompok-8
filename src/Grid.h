@@ -44,23 +44,38 @@ struct Grid {
         TOTAL_GRID = collumn * row;
         grid_state.resize(TOTAL_GRID, CellState::Idle);
 
-        sf::RectangleShape(sf::Vector2f({SIZE_GRID-1.f, SIZE_GRID-1.f}));
+        drawable_grid.setSize(sf::Vector2f({SIZE_GRID-1.f, SIZE_GRID-1.f}));
         myGrid.resize(TOTAL_GRID);
 
     }
 
     void DrawGrid(sf::RenderWindow &window) {
         for(unsigned int i = 0; i < TOTAL_GRID; i++) {
-            float posX = (i % collumn) * SIZE_GRID;
-            float posY = (i / collumn) * SIZE_GRID;
-            std::cout << posX << " " << posY << "\n";
-            drawable_grid.setPosition({posX, posY});
-            drawable_grid.setFillColor({sf::Color::White});
-            drawable_grid.setOutlineColor(sf::Color::Black);
-            drawable_grid.setOutlineThickness(-1.f);
-
-            window.draw(drawable_grid);
-
+          
+          CellState state = grid_state[i];
+          sf::Color color;
+          if(state == CellState::Idle) {
+            color = sf::Color(20, 20, 20);
+          } else if (state == CellState::Wall) {
+            color = sf::Color(100, 116, 139);
+          } else if (state == CellState::InQueue || state == CellState::InStack) {
+            color = sf::Color(171, 224, 240);
+          } else if (state == CellState::Visited) {
+            color = sf::Color(6, 182, 212);
+          } else if (state == CellState::Path) {
+            color = sf::Color(0, 255, 156);
+          }
+          
+          float posX = (i % collumn) * SIZE_GRID;
+          float posY = (i / collumn) * SIZE_GRID;
+          std::cout << posX << " " << posY << "\n";
+          drawable_grid.setPosition({posX, posY});
+            
+          drawable_grid.setFillColor({color});
+          drawable_grid.setOutlineThickness(-1.f);
+          drawable_grid.setOutlineColor(sf::Color::Black);
+            
+          window.draw(drawable_grid);
         }
     }
 
@@ -68,7 +83,7 @@ struct Grid {
         sf::Vector2f mouse_pos_f(static_cast<float>(mouse_pos.x), static_cast<float>(mouse_pos.y));
         switch (brush) {
           case CellModifier::WallBrush:
-
+            
             break;
           case CellModifier::SetStart:
             break;
