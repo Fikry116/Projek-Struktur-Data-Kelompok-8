@@ -19,7 +19,8 @@ enum class CellState {
 enum class CellModifier {
     WallBrush,
     SetStart,
-    SetEnd
+    SetEnd,
+    Erase
 };
 
 struct Grid {
@@ -27,34 +28,35 @@ struct Grid {
   int row;
   int TOTAL_GRID;
   float SIZE_GRID;
-  int start_grid;
-  int end_grid;
+  int start_cell;
+  int end_cell;
   unsigned int window_width;
   unsigned int window_height;
     
   std::vector<std::vector<int>> myGrid;
-  std::vector<CellState> grid_state;
+  std::vector<CellState> cell_state;
   std::vector<int> path;
     
   sf::RectangleShape drawable_grid;
     
   Grid(int start,int end, unsigned int width, unsigned int height) 
-    : start_grid(start), end_grid(end), window_width(width), window_height(height) {
+    : start_cell(start), end_cell(end), window_width(width), window_height(height) {
       SIZE_GRID = 40.f;
       collumn = width / SIZE_GRID;
       row = height / SIZE_GRID;
       TOTAL_GRID = collumn * row;
-      grid_state.resize(TOTAL_GRID, CellState::Idle);
-
+      cell_state.resize(TOTAL_GRID, CellState::Idle);
       drawable_grid.setSize(sf::Vector2f({SIZE_GRID-1.f, SIZE_GRID-1.f}));
       myGrid.resize(TOTAL_GRID);
+      cell_state[start_cell] = CellState::Start;
+      cell_state[end_cell] = CellState::End;
 
   }
 
   void DrawGrid(sf::RenderWindow &window) {
     for(unsigned int i = 0; i < TOTAL_GRID; i++) {
       
-      CellState state = grid_state[i];
+      CellState state = cell_state[i];
       sf::Color color;
       if(state == CellState::Idle) {
         color = sf::Color(20, 20, 20);
@@ -97,24 +99,27 @@ struct Grid {
 
       switch (brush) {
         case CellModifier::WallBrush:
-          if(grid_state[index] == CellState::End || grid_state[index] == CellState::Start) return;
+          if(cell_state[index] == CellState::End || cell_state[index] == CellState::Start) return;
 
-          grid_state[index] = CellState::Wall;
+          cell_state[index] = CellState::Wall;
           break;
         case CellModifier::SetStart:
-          if(index == start_grid) return;
+          if(index == start_cell) return;
 
-          grid_state[index] = CellState::Start;
-          grid_state[start_grid] = CellState::Idle;
-          start_grid = index;
+          cell_state[index] = CellState::Start;
+          cell_state[start_cell] = CellState::Idle;
+          start_cell = index;
           break;
         case CellModifier::SetEnd:
-          if(index == end_grid) return;
+          if(index == end_cell) return;
 
-          grid_state[index] = CellState::End;
-          grid_state[end_grid] = CellState::Idle;
-          end_grid = index;    
-          break;  
+          cell_state[index] = CellState::End;
+          cell_state[end_cell] = CellState::Idle;
+          end_cell = index;    
+          break;
+        case CellModifier::Erase:
+          if(cell_state[index] == CellState::End || cell_state[index] == CellState::Start) return;
+          cell_state[index] = CellState::Idle;
       default:
           break;
       }

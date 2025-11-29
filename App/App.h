@@ -41,6 +41,8 @@ public:
           std::cerr << "File not found\n";
         }
 
+        window.setFramerateLimit(60);
+
         menuSound.setBuffer(buffer);
 
         BFS.setPosition(sf::Vector2f({width / (2.f+1.f) * 1.f, height / 2.f}));
@@ -121,44 +123,50 @@ public:
           
         } else if (event.getIf<sf::Event::Closed>()) { //event window ditutup
           window.close();
-        } else if (event.is<sf::Event::MouseButtonPressed>()) { //event kalau mouse diklik
-          sf::Vector2i mouse_pos = sf::Mouse::getPosition(window); //mengambil posisi mouse
-          if(current_app == AppState::MainMenu) {
-              current_app = ClickedMenu(mouse_pos); 
-          } else if(current_app == AppState::DFS || current_app == AppState::BFS) {
-              //fitur untuk brush tool.
-              myGrid.BrushTool(window, brush_mod, mouse_pos);
-              std::cout << "Pressed DFS\n";
-          }
         } else if (event.is<sf::Event::KeyPressed>()) {
           if(sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Escape) && current_app != AppState::MainMenu) {
             current_app = AppState::MainMenu;
-
+            
             //setting ulang skala dan warna 
             DFS.setFillColor(sf::Color(216, 222, 233));
             DFS.setScale(sf::Vector2f({1.f, 1.f}));
             BFS.setFillColor(sf::Color(216, 222, 233));
             BFS.setScale(sf::Vector2f({1.f, 1.f}));
           } else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::W)) {
-              brush_mod = CellModifier::WallBrush;
+            brush_mod = CellModifier::WallBrush;
           } else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::S)) {
-              brush_mod = CellModifier::SetStart;
+            brush_mod = CellModifier::SetStart;
           } else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::E)) {
-              brush_mod = CellModifier::SetEnd;
+            brush_mod = CellModifier::SetEnd;
           }
         } else if (event.is<sf::Event::MouseMoved>()) {
           sf::Vector2i mouse_pos = sf::Mouse::getPosition(window); //mengambil posisi mouse
           if(current_app == AppState::MainMenu) CheckMenuCollision(mouse_pos);
         }
       }
+      if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) { //event kalau mouse diklik
+        sf::Vector2i mouse_pos = sf::Mouse::getPosition(window); //mengambil posisi mouse
+        if(current_app == AppState::MainMenu) {
+          current_app = ClickedMenu(mouse_pos); 
+        } else if(current_app == AppState::DFS || current_app == AppState::BFS) {
+          //fitur untuk brush tool.
+          myGrid.BrushTool(window, brush_mod, mouse_pos);
+          // std::cout << "Pressed DFS\n";
+        }
+      } else if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Right)) {
+        sf::Vector2i mouse_pos = sf::Mouse::getPosition(window); //mengambil posisi mouse
+        brush_mod = CellModifier::Erase;
+        myGrid.BrushTool(window, brush_mod, mouse_pos);
+      }
+
       
       window.clear(sf::Color(15, 23, 42));
-
+      
       switch (current_app) {
         case AppState::MainMenu: //ketika app state adalah main menu, tampilkan main menu
-          window.draw(DFS);
-          window.draw(BFS);
-          break;
+        window.draw(DFS);
+        window.draw(BFS);
+        break;
         case AppState::BFS: //ketika app state adalah BFS, tampilkan BFS
             // if (!Run) {
           myGrid.DrawGrid(window);
