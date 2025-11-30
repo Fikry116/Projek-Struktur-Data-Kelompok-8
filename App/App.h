@@ -1,7 +1,9 @@
+#pragma once
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 #include <iostream>
-#include "Grid.h"
+// #include "Grid.h"
+#include "GridRenderer.h"
 
 
 /**
@@ -10,7 +12,11 @@
  * Digunakan untuk berpindah-pindah tampilan window
  * ketika pengguna memilih menu pilihan
  */
-enum class AppState {MainMenu, BFS, DFS};
+enum class AppState {
+  MainMenu,
+  BFS,
+  DFS
+};
 
 struct App {
 private:
@@ -24,6 +30,7 @@ private:
   CellModifier brush_mod;
 
   Grid myGrid;
+  GridRenderer myRenderer;
 public:
     /**
     * @brief Konstruktor untuk applikasi yang menginisialisasikan semua member struct App
@@ -32,7 +39,8 @@ public:
     */
   App(unsigned int width, unsigned int height)
     : window(sf::VideoMode({width, height}), "GG"), 
-      DFS(font, "DFS"), BFS(font, "BFS"), menuSound(buffer), myGrid(1, 5, width, height){
+      DFS(font, "DFS"), BFS(font, "BFS"), menuSound(buffer), myGrid(1, 5, width, height),
+      myRenderer(myGrid.GetGridSize()) {
         if(!font.openFromFile("ARIAL.TTF")) {
             std::cerr << "File not found\n";
         }
@@ -58,7 +66,7 @@ public:
   /**
    * @brief Menangani interaksi jika menu ditekan
    * 
-   * Fungsi ini mengecek apakah...... ke tampilan berdasarkan menu yang dipilih (DFS/BFS)
+   * Fungsi ini mengecek menu apa yang dipilih pengguna dengan cara mengklik teks (DFS/BFS)
    * 
    * @param mouse_pos berisi koordinat mouse x dan y relatif pada window
    * @return Target AppState untuk transisi tampilan (MainMenu, BFS, DFS)
@@ -108,7 +116,13 @@ public:
     return;
   }
 
-  //Main loop 
+  /**
+   * @brief Event handler
+   * 
+   * Event untuk mengatur seperti mengatur ulang ukuran window, input keyboard, input mouse,
+   * gerak mouse, pemilihan mode dan fitur-fitur, kemudian digambar yang dilakukan sebanyak 60 frame perdetik. 
+   * 
+   */
   void run() {
     while(window.isOpen()) {
       while(auto eventOpt = window.pollEvent()) { //looping ketika terjadi event pada window.
@@ -150,37 +164,39 @@ public:
           current_app = ClickedMenu(mouse_pos); 
         } else if(current_app == AppState::DFS || current_app == AppState::BFS) {
           //fitur untuk brush tool.
-          myGrid.BrushTool(window, brush_mod, mouse_pos);
+          myRenderer.BrushTool(window, brush_mod, mouse_pos, myGrid);
+          // myGrid.BrushTool(window, brush_mod, mouse_pos);
           // std::cout << "Pressed DFS\n";
         }
       } else if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Right)) {
         sf::Vector2i mouse_pos = sf::Mouse::getPosition(window); //mengambil posisi mouse
         brush_mod = CellModifier::Erase;
-        myGrid.BrushTool(window, brush_mod, mouse_pos);
+        myRenderer.BrushTool(window, brush_mod, mouse_pos, myGrid);
+        // myGrid.BrushTool(window, brush_mod, mouse_pos);
       }
-
       
-      window.clear(sf::Color(15, 23, 42));
+      window.clear(sf::Color(15, 23, 42));//background window
       
       switch (current_app) {
         case AppState::MainMenu: //ketika app state adalah main menu, tampilkan main menu
         window.draw(DFS);
         window.draw(BFS);
         break;
-        case AppState::BFS: //ketika app state adalah BFS, tampilkan BFS
-            // if (!Run) {
-          myGrid.DrawGrid(window);
-                // Run = true;
-            // }
-            // std::cout << "BFS\n";
-            // window.draw(sf::RectangleShape(sf::Vector2f({200, 300})));
-          break;
-        case AppState::DFS: //ketika app state adalah DFS, tampilkan DFS
-            // std::cout << "DFS\n";
-            // myGrid.DrawGrid(window);
-          break;
-        default:
-          break;
+      case AppState::BFS: //ketika app state adalah BFS, tampilkan BFS
+          // if (!Run) {
+          myRenderer.DrawGrid(window, myGrid);
+        // myGrid.DrawGrid(window);
+              // Run = true;
+          // }
+          // std::cout << "BFS\n";
+          // window.draw(sf::RectangleShape(sf::Vector2f({200, 300})));
+        break;
+      case AppState::DFS: //ketika app state adalah DFS, tampilkan DFS
+          // std::cout << "DFS\n";
+          // myGrid.DrawGrid(window);
+        break;
+      default:
+        break;
       }
       // std::cout << "DFS\n";
       window.display(); //mengupdate tampilan window.
