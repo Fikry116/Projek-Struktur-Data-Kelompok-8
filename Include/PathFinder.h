@@ -6,9 +6,7 @@ private:
 
 public:
 
-  void UpdateBFS() {
-
-  }
+  void UpdateBFS();
 
     
 

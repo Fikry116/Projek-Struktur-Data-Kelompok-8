@@ -1,9 +1,19 @@
 #include "GridRenderer.h"
 
+//Konstruktor untuk GridRender yang menginisialisasi ukuran dari sell
 GridRenderer::GridRenderer(float size) :cell_size(size) {
   cell_shape.setSize(sf::Vector2f({cell_size-1.f, cell_size-1.f}));
 }
 
+/**
+ * @brief Merender seluruh grid dan status selnya ke layar (Render Loop).
+ * * Fungsi ini mengiterasi seluruh sel dalam grid, menentukan warna berdasarkan 
+ * status sel (CellState), dan menggambarnya pada posisi yang sesuai.
+ * * @details Posisi render (x, y) dihitung secara matematis dari indeks linear array
+ * menggunakan operasi modulo dan pembagian integer.
+ * * @param window Referensi ke sf::RenderWindow sebagai target rendering.
+ * @param grid   Referensi objek Grid yang menyimpan data status sel (State Data).
+ */
 void GridRenderer::DrawGrid(sf::RenderWindow &window, Grid &grid) { //sementara percobaan grid awal (belum BFS/DFS)
     for(unsigned int i = 0; i < grid.GetTotalGrid(); i++) {
       
@@ -37,11 +47,29 @@ void GridRenderer::DrawGrid(sf::RenderWindow &window, Grid &grid) { //sementara 
     }
 }
 
+/**
+ * @brief Mengkonversi koordinat Grid 2D (kolom, baris) menjadi indeks array 1D (Linear).
+ * * Fungsi ini melakukan pengecekan batas (bounds checking) terlebih dahulu.
+ * * @param x Indeks kolom pada grid (Grid Space).
+ * @param y Indeks baris pada grid (Grid Space).
+ * @param grid Referensi objek Grid untuk mendapatkan dimensi (jumlah baris & kolom).
+ * @return int Indeks array linear jika valid, atau -1 jika koordinat berada di luar batas grid.
+ */
 int GridRenderer::GetIndex(int x, int y, Grid &grid) {
     if (x < 0 || x >= grid.GetCollumn() || y < 0 || y >= grid.GetRow()) return -1;
     return y * grid.GetCollumn() + x;
 }
 
+/**
+ * @brief Memodifikasi status sel pada grid (menggambar tembok, set start/end) berdasarkan input mouse.
+ * * Fungsi ini mengkonversi posisi mouse (piksel) menjadi indeks grid dan mengubah
+ * status sel (CellState) sesuai dengan 'brush' yang dipilih.
+ * * @param window Referensi ke sf::RenderWindow (konteks rendering saat ini).
+ * @param brush  Enum CellModifier yang menentukan mode "lukis" (misal: Wall, Start, End, Erase).
+ * @param mouse_pos Koordinat posisi kursor mouse relatif terhadap window (Screen Coordinates).
+ * @param grid   Referensi ke objek Grid yang akan dimodifikasi status selnya.
+ * * @note Fungsi ini memiliki validasi internal untuk mencegah penimpaan titik Start/End secara tidak sengaja.
+ */
 void GridRenderer::BrushTool(sf::RenderWindow &window, CellModifier brush, sf::Vector2i mouse_pos, Grid &grid) {
   int index = GetIndex(mouse_pos.x/grid.GetGridSize(), mouse_pos.y/grid.GetGridSize(), grid);
 

@@ -46,11 +46,12 @@ public:
   int GetCollumn();
   int GetRow();
   int GetTotalGrid();
-  int GetGridSize();
+  float GetGridSize();
   int GetStartCell();
   int GetEndCell();
   void SetEndCell(int index);
   void SetStartCell(int index);
+  void SetCollumn(int width, int height);
     //Stack myStack
     //Queue myQueue
 };

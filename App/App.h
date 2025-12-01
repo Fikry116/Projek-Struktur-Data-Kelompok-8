@@ -24,8 +24,10 @@ private:
   sf::Font font;
   sf::Text DFS;
   sf::Text BFS;
-  sf::SoundBuffer buffer;
-  sf::Sound menuSound;
+  sf::SoundBuffer buffer_menu;
+  sf::SoundBuffer buffer_menu_click;
+  sf::Sound menu_sound;
+  sf::Sound menu_click;
   AppState current_app;
   CellModifier brush_mod;
 
@@ -39,19 +41,25 @@ public:
     */
   App(unsigned int width, unsigned int height)
     : window(sf::VideoMode({width, height}), "GG"), 
-      DFS(font, "DFS"), BFS(font, "BFS"), menuSound(buffer), myGrid(1, 5, width, height),
-      myRenderer(myGrid.GetGridSize()) {
+      DFS(font, "DFS"), BFS(font, "BFS"), menu_sound(buffer_menu), menu_click(buffer_menu_click),
+      myGrid(1, 5, width, height), myRenderer(myGrid.GetGridSize()) {
+
         if(!font.openFromFile("ARIAL.TTF")) {
             std::cerr << "File not found\n";
         }
 
-        if(!buffer.loadFromFile("MenuSoundClick.mp3")) {
+        if(!buffer_menu.loadFromFile("MenuSound.mp3")) {
+          std::cerr << "File not found\n";
+        }
+
+        if(!buffer_menu_click.loadFromFile("MenuClick.mp3")) {
           std::cerr << "File not found\n";
         }
 
         window.setFramerateLimit(60);
 
-        menuSound.setBuffer(buffer);
+        menu_sound.setBuffer(buffer_menu);
+        menu_click.setBuffer(buffer_menu_click);
 
         BFS.setPosition(sf::Vector2f({width / (2.f+1.f) * 1.f, height / 2.f}));
         DFS.setPosition(sf::Vector2f({width / (2.f+1.f) * 2.f, height / 2.f}));
@@ -64,38 +72,39 @@ public:
   }
 
   /**
-   * @brief Menangani interaksi jika menu ditekan
-   * 
-   * Fungsi ini mengecek menu apa yang dipilih pengguna dengan cara mengklik teks (DFS/BFS)
-   * 
-   * @param mouse_pos berisi koordinat mouse x dan y relatif pada window
-   * @return Target AppState untuk transisi tampilan (MainMenu, BFS, DFS)
+   * @brief Menentukan transisi state aplikasi berdasarkan interaksi klik mouse.
+   * * Fungsi ini melakukan "Hit Test" pada elemen UI (DFS/BFS). Jika kursor berada 
+   * di dalam area bounding box teks saat diklik, fungsi akan mengembalikan state baru.
+   * * @param mouse_pos Koordinat kursor mouse relatif terhadap window (Screen Space).
+   * @return AppState Target state selanjutnya (DFS/BFS). Mengembalikan AppState::MainMenu 
+   * jika klik dilakukan di area kosong (tidak ada menu yang dipilih).
    */
   AppState ClickedMenu(sf::Vector2i mouse_pos) {
     sf::Vector2f mouse_pos_f(static_cast<float>(mouse_pos.x), static_cast<float>(mouse_pos.y));
     if(DFS.getGlobalBounds().contains(mouse_pos_f)) { //mengecek apakah posisi mouse berada di string DFS
+      menu_click.play();
       return AppState::DFS;
     }
     if(BFS.getGlobalBounds().contains(mouse_pos_f)) { //mengecek apakah posisi mouse berada di string BFS
+      menu_click.play();
       return AppState::BFS;
     }
     return AppState::MainMenu;
   }
 
   /**
-   * @brief Menangani interaksi antara menu dengan kursor mouse
-   * 
-   * Fungsi ini mengecek apakah koordinat kursor mouse berinteraksi dengan menu
-   * (DFS/BFS) yaitu saat kursor berada dijangkauan teks.
-   * ketika berinteraksi maka warna font berganti menjadi warna
-   * dan skala teks berubah pindah ke tampilan berdasarkan menu yang dipilih (DFS/BFS)
-   * 
+   * @brief Menangani logika visual saat kursor berada di atas menu.
+   * * Fungsi ini mendeteksi apakah kursor mouse berada dalam area bounding box teks menu.
+   * Jika terdeteksi (collision), fungsi akan memberikan umpan balik visual (perubahan warna & skala)
+   * dan audio (sfx) kepada pengguna.
+   * * @param mouse_pos Koordinat posisi mouse saat ini (dalam satuan piksel window).
+   * @note Konversi ke sf::Vector2f diperlukan karena fungsi `contains` membutuhkan koordinat floating point.
    */
   void CheckMenuCollision(sf::Vector2i mouse_pos) {
     sf::Vector2f mouse_pos_f(static_cast<float>(mouse_pos.x), static_cast<float>(mouse_pos.y));
     if(DFS.getGlobalBounds().contains(mouse_pos_f)) {
       if(DFS.getFillColor() == sf::Color(216, 222, 233)) {
-        menuSound.play();
+        menu_sound.play();
         DFS.setScale(sf::Vector2f({1.15f, 1.15f}));
       } 
       DFS.setFillColor(sf::Color(136, 192, 208));
@@ -105,7 +114,7 @@ public:
     }
     if(BFS.getGlobalBounds().contains(mouse_pos_f)) {
       if(BFS.getFillColor() == sf::Color(216, 222, 233)) {
-          menuSound.play();
+          menu_sound.play();
           BFS.setScale(sf::Vector2f({1.15f, 1.15f}));
       } 
       BFS.setFillColor(sf::Color(136, 192, 208));
@@ -117,11 +126,14 @@ public:
   }
 
   /**
-   * @brief Event handler
-   * 
-   * Event untuk mengatur seperti mengatur ulang ukuran window, input keyboard, input mouse,
-   * gerak mouse, pemilihan mode dan fitur-fitur, kemudian digambar yang dilakukan sebanyak 60 frame perdetik. 
-   * 
+   * @brief Siklus utama aplikasi (Main Game Loop).
+   * * Fungsi ini menangani siklus hidup aplikasi yang mencakup:
+   * 1. **Event Polling**: Menangani input diskrit (keypress, resize, close).
+   * 2. **Real-time Input**: Menangani input continuous (mouse drag untuk menggambar).
+   * 3. **Logic Update**: Mengatur transisi state (Menu <-> Algoritma) dan tool modifier.
+   * 4. **Rendering**: Membersihkan layar, menggambar objek berdasarkan state aktif, dan menampilkannya (Double Buffering).
+   * * @note Loop ini akan terus berjalan selama window terbuka.
+   * @details Key mapping: [W] Wall, [S] Start Node, [E] End Node, [Right Click] Erase.
    */
   void run() {
     while(window.isOpen()) {
@@ -158,21 +170,18 @@ public:
           if(current_app == AppState::MainMenu) CheckMenuCollision(mouse_pos);
         }
       }
+
+      //gambar tembok/set start/set end 
       if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) { //event kalau mouse diklik
         sf::Vector2i mouse_pos = sf::Mouse::getPosition(window); //mengambil posisi mouse
         if(current_app == AppState::MainMenu) {
           current_app = ClickedMenu(mouse_pos); 
         } else if(current_app == AppState::DFS || current_app == AppState::BFS) {
-          //fitur untuk brush tool.
           myRenderer.BrushTool(window, brush_mod, mouse_pos, myGrid);
-          // myGrid.BrushTool(window, brush_mod, mouse_pos);
-          // std::cout << "Pressed DFS\n";
         }
       } else if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Right)) {
         sf::Vector2i mouse_pos = sf::Mouse::getPosition(window); //mengambil posisi mouse
-        brush_mod = CellModifier::Erase;
-        myRenderer.BrushTool(window, brush_mod, mouse_pos, myGrid);
-        // myGrid.BrushTool(window, brush_mod, mouse_pos);
+        myRenderer.BrushTool(window, CellModifier::Erase, mouse_pos, myGrid);
       }
       
       window.clear(sf::Color(15, 23, 42));//background window
@@ -183,17 +192,9 @@ public:
         window.draw(BFS);
         break;
       case AppState::BFS: //ketika app state adalah BFS, tampilkan BFS
-          // if (!Run) {
           myRenderer.DrawGrid(window, myGrid);
-        // myGrid.DrawGrid(window);
-              // Run = true;
-          // }
-          // std::cout << "BFS\n";
-          // window.draw(sf::RectangleShape(sf::Vector2f({200, 300})));
         break;
       case AppState::DFS: //ketika app state adalah DFS, tampilkan DFS
-          // std::cout << "DFS\n";
-          // myGrid.DrawGrid(window);
         break;
       default:
         break;
