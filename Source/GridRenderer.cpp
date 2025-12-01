@@ -100,5 +100,25 @@ void GridRenderer::BrushTool(sf::RenderWindow &window, CellModifier brush, sf::V
       grid.cell_state[index] = CellState::Idle;
     default:
       break;
-      }
+  }
 }
+
+// void GridRenderer::RandomWall(Grid &grid) {
+//     // Kita perlu seed random biar tiap run beda hasilnya
+//     // Kalau nggak ada srand, polanya bakal sama terus tiap lo buka app
+//     // Taruh srand(time(0)) di main.cpp aja sebenernya, tapi info aja.
+
+//     int total = grid.GetTotalGrid(); // Ambil total kotak
+
+//     for (int i = 0; i < total; ++i) {
+//         // PENTING: Jangan timpa Start (Awal) dan End (Akhir)
+//         if (grid.cell_state[i] == CellState::Start || grid.cell_state[i] == CellState::End) {
+//             continue; 
+//         }
+
+//         // Logic: Lempar dadu 0-99. Kalau dapet < 30 (30% chance), jadiin tembok.
+//         if (rand() % 100 < 30) { 
+//             grid.cell_state[i] = CellState::Wall;
+//         }
+//     }
+// }

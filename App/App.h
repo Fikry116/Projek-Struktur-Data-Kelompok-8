@@ -2,7 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 #include <iostream>
-// #include "Grid.h"
+#include "Grid.h"
 #include "GridRenderer.h"
 
 
@@ -18,7 +18,15 @@ enum class AppState {
   DFS
 };
 
-struct App {
+/**
+ * @brief Struktur utama (Main Wrapper) yang menjalankan aplikasi.
+ * * Class ini berfungsi sebagai wadah untuk semua komponen penting:
+ * - Resource: Font, Suara, dan Window.
+ * - Logika: Grid data (myGrid) dan sistem rendering (myRenderer).
+ * - State: Status aplikasi saat ini (Menu, BFS, atau DFS).
+ * * Cara kerjanya: Cukup buat instance struct ini di `main()`, lalu panggil fungsi `run()`.
+ */
+class App {
 private:
   sf::RenderWindow window;
   sf::Font font;
@@ -48,7 +56,7 @@ public:
             std::cerr << "File not found\n";
         }
 
-        if(!buffer_menu.loadFromFile("MenuSound.mp3")) {
+        if(!buffer_menu.loadFromFile("MenuCollision.mp3")) {
           std::cerr << "File not found\n";
         }
 
@@ -56,7 +64,7 @@ public:
           std::cerr << "File not found\n";
         }
 
-        window.setFramerateLimit(60);
+        window.setFramerateLimit(30);
 
         menu_sound.setBuffer(buffer_menu);
         menu_click.setBuffer(buffer_menu_click);
@@ -165,6 +173,9 @@ public:
           } else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::E)) {
             brush_mod = CellModifier::SetEnd;
           }
+          // } else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::R)) {
+          //   myRenderer.RandomWall(myGrid);
+          // }
         } else if (event.is<sf::Event::MouseMoved>()) {
           sf::Vector2i mouse_pos = sf::Mouse::getPosition(window); //mengambil posisi mouse
           if(current_app == AppState::MainMenu) CheckMenuCollision(mouse_pos);
