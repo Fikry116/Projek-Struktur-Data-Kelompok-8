@@ -1,10 +1,11 @@
 #pragma once
 //struct grid buat BFS sama DFS
 #include <iostream>
-#include <queue>
-#include <stack>
 #include <SFML/Graphics.hpp>
 #include <vector> 
+#include "Tree.h"
+#include "Stack.h"
+#include "Queue.h"
 
 enum class CellState {
     Idle,
@@ -40,6 +41,7 @@ public:
   std::vector<std::vector<int>> adjacent;
   std::vector<CellState> cell_state;
   std::vector<int> path;
+  Tree parent;
 
   Grid(int start,int end, unsigned int width, unsigned int height);
 
@@ -51,7 +53,9 @@ public:
   int GetEndCell();
   void SetEndCell(int index);
   void SetStartCell(int index);
-  void SetCollumn(int width, int height);
+  void ResetState();
+  void InitGrid();
+  // void SetCollumn(int width, int height);
     //Stack myStack
     //Queue myQueue
 };

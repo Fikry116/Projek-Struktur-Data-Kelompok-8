@@ -1,4 +1,4 @@
-#include <vector>
+#pragma once
 struct Node {
     int val;
     Node *next;
@@ -8,7 +8,10 @@ struct Node {
 };
 
 struct TreeNode {
-    int val;
-    TreeNode *parent;
-    std::vector<TreeNode*> child;
+  int Key;
+  int Value;
+  TreeNode *parent, *left, *right;
+
+  TreeNode(int key, int value, TreeNode *prnt, TreeNode *l = nullptr, TreeNode *r = nullptr);
+
 };

@@ -4,6 +4,7 @@
 #include <iostream>
 #include "Grid.h"
 #include "GridRenderer.h"
+#include "PathFinder.h"
 
 
 /**
@@ -18,15 +19,7 @@ enum class AppState {
   DFS
 };
 
-/**
- * @brief Struktur utama (Main Wrapper) yang menjalankan aplikasi.
- * * Class ini berfungsi sebagai wadah untuk semua komponen penting:
- * - Resource: Font, Suara, dan Window.
- * - Logika: Grid data (myGrid) dan sistem rendering (myRenderer).
- * - State: Status aplikasi saat ini (Menu, BFS, atau DFS).
- * * Cara kerjanya: Cukup buat instance struct ini di `main()`, lalu panggil fungsi `run()`.
- */
-class App {
+struct App {
 private:
   sf::RenderWindow window;
   sf::Font font;
@@ -41,6 +34,9 @@ private:
 
   Grid myGrid;
   GridRenderer myRenderer;
+  PathFinder finder;
+
+  bool paused;
 public:
     /**
     * @brief Konstruktor untuk applikasi yang menginisialisasikan semua member struct App
@@ -50,7 +46,7 @@ public:
   App(unsigned int width, unsigned int height)
     : window(sf::VideoMode({width, height}), "GG"), 
       DFS(font, "DFS"), BFS(font, "BFS"), menu_sound(buffer_menu), menu_click(buffer_menu_click),
-      myGrid(1, 5, width, height), myRenderer(myGrid.GetGridSize()) {
+      myGrid(55, 135, width, height), myRenderer(myGrid.GetGridSize()) {
 
         if(!font.openFromFile("ARIAL.TTF")) {
             std::cerr << "File not found\n";
@@ -64,7 +60,7 @@ public:
           std::cerr << "File not found\n";
         }
 
-        window.setFramerateLimit(30);
+        window.setFramerateLimit(60);
 
         menu_sound.setBuffer(buffer_menu);
         menu_click.setBuffer(buffer_menu_click);
@@ -77,6 +73,7 @@ public:
 
         current_app= AppState::MainMenu;
         brush_mod = CellModifier::WallBrush;
+        paused = true;
   }
 
   /**
@@ -172,10 +169,13 @@ public:
             brush_mod = CellModifier::SetStart;
           } else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::E)) {
             brush_mod = CellModifier::SetEnd;
+          } else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::R)) {
+            // myRenderer.MazeGenerator(0, myGrid);
+          } else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Space)) {
+            paused = !paused;
+          } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Right)) {
+              finder.UpdateBFS(myGrid);
           }
-          // } else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::R)) {
-          //   myRenderer.RandomWall(myGrid);
-          // }
         } else if (event.is<sf::Event::MouseMoved>()) {
           sf::Vector2i mouse_pos = sf::Mouse::getPosition(window); //mengambil posisi mouse
           if(current_app == AppState::MainMenu) CheckMenuCollision(mouse_pos);
@@ -195,7 +195,7 @@ public:
         myRenderer.BrushTool(window, CellModifier::Erase, mouse_pos, myGrid);
       }
       
-      window.clear(sf::Color(15, 23, 42));//background window
+      window.clear(sf::Color(40, 42, 54));//background window
       
       switch (current_app) {
         case AppState::MainMenu: //ketika app state adalah main menu, tampilkan main menu
@@ -203,7 +203,14 @@ public:
         window.draw(BFS);
         break;
       case AppState::BFS: //ketika app state adalah BFS, tampilkan BFS
-          myRenderer.DrawGrid(window, myGrid);
+        myRenderer.DrawGrid(window, myGrid);
+        if(!paused && !finder.target_found) {
+          finder.UpdateBFS(myGrid);
+          // std::cout << "Pathfinder\n";
+        } else if(finder.target_found){
+          // std::cout << "find\n";
+          finder.FindShortestPath(myGrid);
+        }
         break;
       case AppState::DFS: //ketika app state adalah DFS, tampilkan DFS
         break;

@@ -10,6 +10,7 @@ Grid::Grid(int start,int end, unsigned int width, unsigned int height)
     adjacent.resize(TOTAL_GRID);
     cell_state[start_cell] = CellState::Start;
     cell_state[end_cell] = CellState::End;
+    InitGrid();
 }
 /**
  * Getter kolom
@@ -73,6 +74,16 @@ void Grid::SetEndCell(int index) {
  */
 void Grid::SetStartCell(int index) {
     start_cell = index;
+}
+
+void Grid::InitGrid() {
+    for(int i = 0; i < TOTAL_GRID; i++) {
+        if (i - collumn >= 0) adjacent[i].push_back(i - collumn);      // atas
+        if (i % collumn != 0) adjacent[i].push_back(i - 1);         // kiri
+        if (i + collumn < TOTAL_GRID) adjacent[i].push_back(i + collumn); // bawah
+        if ((i + 1) % collumn != 0) adjacent[i].push_back(i + 1);
+    }
+    // parent.Insert(start_cell, -1);
 }
 
 // void Grid::

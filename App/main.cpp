@@ -6,4 +6,4 @@ int main() {
     application.run();
 
     return 0;
-}
+}  
