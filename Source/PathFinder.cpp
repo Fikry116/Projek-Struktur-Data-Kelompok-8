@@ -1,6 +1,8 @@
 #include "PathFinder.h"
 
-PathFinder::PathFinder() {target_found = false;}
+PathFinder::PathFinder(Grid &grid) : backtrack_at(grid.GetEndCell()) {
+    target_found = false;
+}
 
 void PathFinder::UpdateBFS(Grid &grid) {
     if(myQueue.IsEmpty()) {
@@ -13,12 +15,10 @@ void PathFinder::UpdateBFS(Grid &grid) {
     }
     int current_node = myQueue.Front();
 
-    
+    //sel berubah status menjadi Visited setelah dilakukan Queue
     if(current_node != grid.GetStartCell() && current_node != grid.GetEndCell()) {
         grid.cell_state[current_node] = CellState::Visited;
     }
-
-    std::cout << current_node << " " << grid.GetEndCell() << " " << grid.GetStartCell() << "\n";
 
     if(current_node == grid.GetEndCell()) {
         target_found = true;
@@ -41,37 +41,39 @@ void PathFinder::UpdateBFS(Grid &grid) {
 
 void PathFinder::UpdateDFS(Grid &grid) {
     if(myStack.IsEmpty()) {
-        //init
+        grid.parent.Insert(grid.GetStartCell(), -1);
+        myStack.Push(grid.GetStartCell());
     }
 
-    int current_node = myQueue.Front();
+    int current_node = myStack.Top();
 
     if(current_node != grid.GetStartCell() && current_node != grid.GetEndCell())
       grid.cell_state[current_node] = CellState::Visited;
 
-    if(current_node = grid.GetEndCell()) {
-        backtrack_at = grid.GetEndCell();
+    if(current_node == grid.GetEndCell()) {
         target_found = true;
         return;
     }
-    myQueue.Dequeue();
+
+    myStack.Pop();
 
     for(int neighbor : grid.adjacent[current_node]) {
-        if(grid.cell_state[neighbor] == CellState::Idle) {
-            grid.cell_state[neighbor] = CellState::InQueue;
+        if(grid.cell_state[neighbor] == CellState::Idle || neighbor == grid.GetEndCell()) {
+            if(grid.cell_state[neighbor] != CellState::End) {
+                grid.cell_state[neighbor] = CellState::InStack;
+            }
             grid.parent.Insert(neighbor, current_node);
-            myQueue.Enqueue(neighbor);
+            myStack.Push(neighbor);
         }
     }
 }
 
 void PathFinder::FindShortestPath(Grid &grid) {
-    std::cout << backtrack_at << "\n";
     if(backtrack_at != -1) {
-        std::cout << backtrack_at << "\n";
-        grid.path.push_back(backtrack_at);
+        grid.path.push_back(backtrack_at); //search value dengan key 
         backtrack_at = grid.parent.Search(backtrack_at);
-        if(backtrack_at != -1 && backtrack_at != grid.GetStartCell())
+        if(backtrack_at != -1 && backtrack_at != grid.GetStartCell()) {
             grid.cell_state[backtrack_at] = CellState::Path;
+        }
     }
 }

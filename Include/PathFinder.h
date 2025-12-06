@@ -7,7 +7,7 @@ private:
   
 public:
   bool target_found;
-  PathFinder();
+  PathFinder(Grid &grid);
   void UpdateBFS(Grid &grid);
   void UpdateDFS(Grid &grid);
   void FindShortestPath(Grid &grid);

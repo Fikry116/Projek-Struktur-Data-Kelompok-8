@@ -46,7 +46,7 @@ public:
   App(unsigned int width, unsigned int height)
     : window(sf::VideoMode({width, height}), "GG"), 
       DFS(font, "DFS"), BFS(font, "BFS"), menu_sound(buffer_menu), menu_click(buffer_menu_click),
-      myGrid(55, 135, width, height), myRenderer(myGrid.GetGridSize()) {
+      myGrid(55, 135, width, height), myRenderer(myGrid.GetGridSize()), finder(myGrid) {
 
         if(!font.openFromFile("ARIAL.TTF")) {
             std::cerr << "File not found\n";
@@ -213,6 +213,14 @@ public:
         }
         break;
       case AppState::DFS: //ketika app state adalah DFS, tampilkan DFS
+        myRenderer.DrawGrid(window, myGrid);
+        if(!paused && !finder.target_found) {
+          finder.UpdateDFS(myGrid);
+          // std::cout << "Pathfinder\n";
+        } else if(finder.target_found){
+          // std::cout << "find\n";
+          finder.FindShortestPath(myGrid);
+        }
         break;
       default:
         break;

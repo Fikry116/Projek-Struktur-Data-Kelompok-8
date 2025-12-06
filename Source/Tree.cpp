@@ -6,6 +6,7 @@ TreeNode::TreeNode(int key, int value, TreeNode *prnt, TreeNode *l, TreeNode *r)
 Tree::Tree() : root(nullptr) {}
 Tree::~Tree() {Clear();}
 
+//key = child, val = parent
 void Tree::Insert(int key, int val) {
     root = InsertRecursive(root, key, val);
 
@@ -13,21 +14,23 @@ void Tree::Insert(int key, int val) {
 
 TreeNode *Tree::InsertRecursive(TreeNode *current, int key, int value) {
     if(current == nullptr) {
-        current = new TreeNode(key, value, current, nullptr, nullptr);
+        current = new TreeNode(key, value, nullptr, nullptr, nullptr);
         return current;
     } 
-    if(current->Key > key) {
-        return InsertRecursive(current->left, key, value);
+    if(key < current->Key) {
+        current->left = InsertRecursive(current->left, key, value);
     } else {
-        return InsertRecursive(current->right, key, value);
+        current->right = InsertRecursive(current->right, key, value);
     }
+
+    return current;
 }
 
 int Tree::Search(int key) {
     TreeNode *current = root;
     while (current) {
         if (key == current->Key) {
-            return current->Key;
+            return current->Value;
         } else if (key < current->Key) {
             current = current->left;
         } else {

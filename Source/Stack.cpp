@@ -5,6 +5,7 @@
 //   void Clear();
 
 Stack::Stack() : top(nullptr) {}
+
 void Stack::Clear() {
     while(top) {
         Pop();
