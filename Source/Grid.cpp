@@ -22,39 +22,39 @@
  */
 Grid::Grid(int start,int end, unsigned int width, unsigned int height) 
   : start_cell(start), end_cell(end), window_width(width), window_height(height) {
-    //inisialisasi ukuran grid (kotak)
-    size_grid= 40.f;
+  //inisialisasi ukuran grid (kotak)
+  size_grid= 40.f;
 
-    //hitung kolom berdasarkan lebar window/ukuran grid
-    collumn = width / size_grid;
-    
-    //inisialisasi banyak baris berdasarkan tinggi window/ukuran grid
-    row = height / size_grid;
-    
-    //total grid adalah kolom * baris
-    total_grid = collumn * row;
+  //hitung kolom berdasarkan lebar window/ukuran grid
+  collumn = width / size_grid;
+  
+  //inisialisasi banyak baris berdasarkan tinggi window/ukuran grid
+  row = height / size_grid;
+  
+  //total grid adalah kolom * baris
+  total_grid = collumn * row;
 
-    //inisialisasi seluruh grid dengan status grid sebagai idle (nganggur), dan ubah ukuran sebanyak total grid
-    cell_state.resize(total_grid, CellState::Idle);
+  //inisialisasi seluruh grid dengan status grid sebagai idle (nganggur), dan ubah ukuran sebanyak total sel
+  cell_state.resize(total_grid, CellState::Idle);
 
-    //menyesuaikan ukuran menjadi total grid
-    adjacent.resize(total_grid);
+  //menyesuaikan ukuran menjadi total grid
+  neighbors.resize(total_grid);
 
-    //inisialisasi status pada indeks start cell adalah Start
-    cell_state[start_cell] = CellState::Start;
+  //inisialisasi status pada indeks start cell adalah Start
+  cell_state[start_cell] = CellState::Start;
 
-    //inisialisasi status pada indeks end cell adalah End
-    cell_state[end_cell] = CellState::End;
+  //inisialisasi status pada indeks end cell adalah End
+  cell_state[end_cell] = CellState::End;
 
-    //memanggil prosedur InitGrid() untuk menginisialisasi adjacent beserta tetangganya
-    InitGrid();
+  //memanggil prosedur InitGrid() untuk menginisialisasi neighbors beserta tetangganya
+  InitGrid();
 }
 /**
  * Getter kolom
  * @return Jumlah kolom
  */
 int Grid::GetCollumn() {
-    return collumn;
+  return collumn;
 }
 
 /**
@@ -62,7 +62,7 @@ int Grid::GetCollumn() {
  * @return jumlah baris
  */
 int Grid::GetRow() {
-    return row;
+  return row;
 }
 
 /**
@@ -70,7 +70,7 @@ int Grid::GetRow() {
  * @return ukuran sel (float)
  */
 float Grid::GetGridSize() {
-    return size_grid;
+  return size_grid;
 }
 
 /**
@@ -78,7 +78,7 @@ float Grid::GetGridSize() {
  * @return indeks sel awal
  */
 int Grid::GetStartCell() {
-    return start_cell;
+  return start_cell;
 }
 
 /**
@@ -86,7 +86,7 @@ int Grid::GetStartCell() {
  * @return indeks sel akhir
  */
 int Grid::GetEndCell() {
-    return end_cell;
+  return end_cell;
 }
 
 /**
@@ -94,7 +94,7 @@ int Grid::GetEndCell() {
  * @return banyaknya sel dalam grid
  */
 int Grid::GetTotalGrid() {
-    return total_grid;
+  return total_grid;
 }
 
 /**
@@ -102,7 +102,7 @@ int Grid::GetTotalGrid() {
  * @param index indeks untuk sel akhir 
  */
 void Grid::SetEndCell(int index) {
-    end_cell = index;
+  end_cell = index;
 }
 
 /**
@@ -110,15 +110,24 @@ void Grid::SetEndCell(int index) {
  * @param index indeks untuk sel awal
  */
 void Grid::SetStartCell(int index) {
-    start_cell = index;
+  start_cell = index;
 }
 
 //Inisialisasi grid ke-i beserta memetakan tetangga yang ada di sampingnya (atas/kiri/bawah/kanan) bila ada.
 void Grid::InitGrid() {
-    for(int i = 0; i < total_grid; i++) {
-        if (i - collumn >= 0) adjacent[i].push_back(i - collumn);      // atas
-        if (i % collumn != 0) adjacent[i].push_back(i - 1);         // kiri
-        if (i + collumn < total_grid) adjacent[i].push_back(i + collumn); // bawah
-        if ((i + 1) % collumn != 0) adjacent[i].push_back(i + 1);  //kanan
-    }
+  for(int i = 0; i < total_grid; i++) {
+    if (i - collumn >= 0) neighbors[i].push_back(i - collumn);      // atas
+    if (i % collumn != 0) neighbors[i].push_back(i - 1);         // kiri
+    if (i + collumn < total_grid) neighbors[i].push_back(i + collumn); // bawah
+    if ((i + 1) % collumn != 0) neighbors[i].push_back(i + 1);  //kanan
+  }
+}
+
+void Grid::ResetState() {
+  for(int i = 0 ; i < total_grid; i++) {
+    cell_state[i] = CellState::Idle;
+  }
+  cell_state[start_cell] = CellState::Start;
+  cell_state[end_cell] = CellState::End;
+  parent.Clear();
 }

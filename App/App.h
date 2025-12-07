@@ -23,6 +23,7 @@ enum class AppState {
  * @brief Main Engine / Jantung dari aplikasi visualisasi ini.
  *
  * Struct ini adalah yang mengelola semua hal:
+ * 
  * - Jendela aplikasi (Window).
  * 
  * - Aset visual & audio (Font, Sound).
@@ -31,7 +32,7 @@ enum class AppState {
  * 
  * - Komponen inti (Grid, Renderer, Pathfinder).
  */
-struct App {
+class App {
 private:
   sf::RenderWindow window;
   sf::Font font;
@@ -42,13 +43,14 @@ private:
   sf::Sound menu_sound;
   sf::Sound menu_click;
   AppState current_app;
-  CellModifier brush_mod;
+  CellModifier mode_kuas;
 
   Grid myGrid;
   GridRenderer myRenderer;
-  PathFinder finder;
+  PathFinder pathFinder;
 
   bool paused;
+  bool isEverPlayed;
 public:
     /**
     * @brief Konstruktor untuk applikasi yang menginisialisasikan semua member struct App
@@ -59,7 +61,7 @@ public:
   App(unsigned int width, unsigned int height)
     : window(sf::VideoMode({width, height}), "GG"), 
       DFS(font, "DFS"), BFS(font, "BFS"), menu_sound(buffer_menu), menu_click(buffer_menu_click),
-      myGrid(55, 135, width, height), myRenderer(myGrid.GetGridSize()), finder(myGrid) {
+      myGrid(55, 135, width, height), myRenderer(myGrid.GetGridSize()), pathFinder(myGrid) {
 
         if(!font.openFromFile("ARIAL.TTF")) {
             std::cerr << "File not found\n";
@@ -85,8 +87,9 @@ public:
         DFS.setFillColor(sf::Color(216, 222, 233));
 
         current_app= AppState::MainMenu;
-        brush_mod = CellModifier::WallBrush;
+        mode_kuas = CellModifier::WallBrush;
         paused = true;
+        isEverPlayed = false;
   }
 
   /**
@@ -164,6 +167,7 @@ public:
     while(window.isOpen()) {
       while(auto eventOpt = window.pollEvent()) { //looping ketika terjadi event pada window.
         auto &event = *eventOpt;
+
         if (auto *resize = event.getIf<sf::Event::Resized>()) { //update ukuran window kalau di resize
           sf::View view(sf::FloatRect({0.f, 0.f}, 
           {static_cast<float>(resize->size.x), static_cast<float>(resize->size.y)}));
@@ -184,30 +188,45 @@ public:
             BFS.setFillColor(sf::Color(216, 222, 233));
             BFS.setScale(sf::Vector2f({1.f, 1.f}));
           } else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::W)) {
-            brush_mod = CellModifier::WallBrush;
-          } else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::S)) {
-            brush_mod = CellModifier::SetStart;
-          } else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::E)) {
-            brush_mod = CellModifier::SetEnd;
+            mode_kuas = CellModifier::WallBrush;
+
+          } else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::S) && !isEverPlayed) {
+            mode_kuas = CellModifier::SetStart;
+
+          } else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::E) && !isEverPlayed) {
+            mode_kuas = CellModifier::SetEnd;
+
           } else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::R)) {
-            // myRenderer.MazeGenerator(0, myGrid);
+            myGrid.ResetState();
+            pathFinder.Reset();
+            isEverPlayed = false;
+            paused = true;
+
           } else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Space)) {
             paused = !paused;
+            isEverPlayed = true;
+            mode_kuas = CellModifier::WallBrush;
+
           } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Right)) {
-              finder.UpdateBFS(myGrid);
+            if(current_app == AppState::BFS)
+              pathFinder.UpdateBFS(myGrid);
+
+            if(current_app == AppState::DFS)
+              pathFinder.UpdateDFS(myGrid);
           }
         } else if (event.is<sf::Event::MouseMoved>()) { //event kontinu ketika mouse bergerak secara real time
           sf::Vector2i mouse_pos = sf::Mouse::getPosition(window); //mengambil posisi mouse
           if(current_app == AppState::MainMenu) CheckMenuCollision(mouse_pos);
         }
-      }
+      }//akhir pollEvent()
+
       //gambar tembok/set start/set end 
       if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) { //event kalau mouse diklik
         sf::Vector2i mouse_pos = sf::Mouse::getPosition(window); //mengambil posisi mouse
         if(current_app == AppState::MainMenu) {
           current_app = ClickedMenu(mouse_pos); 
         } else if(current_app == AppState::DFS || current_app == AppState::BFS) {
-          myRenderer.BrushTool(window, brush_mod, mouse_pos, myGrid);
+          myRenderer.BrushTool(window, mode_kuas, mouse_pos, myGrid);
         }
       } else if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Right)) {
         sf::Vector2i mouse_pos = sf::Mouse::getPosition(window); //mengambil posisi mouse
@@ -223,18 +242,18 @@ public:
         break;
       case AppState::BFS: //ketika app state adalah BFS, tampilkan BFS
         myRenderer.DrawGrid(window, myGrid);
-        if(!paused && !finder.target_found) {
-          finder.UpdateBFS(myGrid);
-        } else if(finder.target_found){
-          finder.FindShortestPath(myGrid);
+        if(!paused && !pathFinder.IsTargetFound()) {
+          pathFinder.UpdateBFS(myGrid);
+        } else if(pathFinder.IsTargetFound()) {
+          pathFinder.FindPath(myGrid);
         }
         break;
       case AppState::DFS: //ketika app state adalah DFS, tampilkan DFS
         myRenderer.DrawGrid(window, myGrid);
-        if(!paused && !finder.target_found) {
-          finder.UpdateDFS(myGrid);
-        } else if(finder.target_found){
-          finder.FindShortestPath(myGrid);
+        if(!paused && !pathFinder.IsTargetFound()) {
+          pathFinder.UpdateDFS(myGrid);
+        } else if(pathFinder.IsTargetFound()) {
+          pathFinder.FindPath(myGrid);
         }
         break;
       default:

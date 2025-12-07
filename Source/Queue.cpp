@@ -34,3 +34,10 @@ int Queue::Front() {
 bool Queue::IsEmpty() {
     return head == nullptr;
 }
+
+void Queue::Clear() {
+    while(head) {
+        Dequeue();
+    }
+    head = tail = nullptr;
+}

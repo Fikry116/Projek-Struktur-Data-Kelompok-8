@@ -25,17 +25,17 @@ void Tree::Insert(int key, int val) {
  * dengan cara membandingkan key yang akan di masukkan dengan key yang ada di dalam node. 
  * Sehingga node ini akan tersortir secara otomatis berdasarkan key 
  */
-TreeNode *Tree::InsertRecursive(TreeNode *current, int key, int value) {
-    if(current == nullptr) {
-        current = new TreeNode(key, value, nullptr, nullptr, nullptr);
-        return current;
+TreeNode *Tree::InsertRecursive(TreeNode *node, int key, int value) {
+    if(node == nullptr) { //basis
+        node = new TreeNode(key, value, nullptr, nullptr, nullptr);
+        return node;
     } 
-    if(key < current->Key) {
-        current->left = InsertRecursive(current->left, key, value);
+    if(key < node->Key) {
+        node->left = InsertRecursive(node->left, key, value);
     } else {
-        current->right = InsertRecursive(current->right, key, value);
+        node->right = InsertRecursive(node->right, key, value);
     }
-    return current;
+    return node;
 }
 
 /**

@@ -1,7 +1,7 @@
 #include "PathFinder.h"
 
 PathFinder::PathFinder(Grid &grid) : backtrack_at(grid.GetEndCell()) {
-    target_found = false;
+  target_found = false;
 }
 
 /**
@@ -32,44 +32,44 @@ PathFinder::PathFinder(Grid &grid) : backtrack_at(grid.GetEndCell()) {
  * 
  */
 void PathFinder::UpdateBFS(Grid &grid) {
-    if(myQueue.IsEmpty()) {
-        grid.parent.Insert(grid.GetStartCell(), -1);
-        myQueue.Enqueue(grid.GetStartCell());
-    }
-    
-    if(target_found){
-        return;
-    }
-    int current_node = myQueue.Front();
+  if(BFS_Queue.IsEmpty()) {
+    grid.parent.Insert(grid.GetStartCell(), -1);
+    BFS_Queue.Enqueue(grid.GetStartCell());
+  }
+  
+  if(target_found){
+    return;
+  }
+  int current_node = BFS_Queue.Front();
 
-    //sel berubah status menjadi Visited setelah dilakukan Queue
-    if(current_node != grid.GetStartCell() && current_node != grid.GetEndCell()) {
-        grid.cell_state[current_node] = CellState::Visited;
-    }
+  //sel berubah status menjadi Visited setelah dilakukan Queue
+  if(current_node != grid.GetStartCell() && current_node != grid.GetEndCell()) {
+    grid.cell_state[current_node] = CellState::Visited;
+  }
 
-    if(current_node == grid.GetEndCell()) {
-        target_found = true;
-        backtrack_at = grid.GetEndCell();
-        std::cout << "Found\n";
-        return;
+  if(current_node == grid.GetEndCell()) {
+    target_found = true;
+    backtrack_at = grid.GetEndCell();
+    std::cout << "Found\n";
+    return;
+  }
+  BFS_Queue.Dequeue();
+  
+  for(int neighbor : grid.neighbors[current_node]) {
+    if(grid.cell_state[neighbor] == CellState::Idle || neighbor == grid.GetEndCell()) {
+      if(grid.cell_state[neighbor] != CellState::End) {
+        grid.cell_state[neighbor] = CellState::InQueue;
+      }
+      grid.parent.Insert(neighbor, current_node);
+      BFS_Queue.Enqueue(neighbor);
     }
-    myQueue.Dequeue();
-    
-    for(int neighbor : grid.adjacent[current_node]) {
-        if(grid.cell_state[neighbor] == CellState::Idle || neighbor == grid.GetEndCell()) {
-            if(grid.cell_state[neighbor] != CellState::End) {
-                grid.cell_state[neighbor] = CellState::InQueue;
-            }
-            grid.parent.Insert(neighbor, current_node);
-            myQueue.Enqueue(neighbor);
-        }
-    }
+  }
 }
 
 /**
  * @brief Jalanin satu langkah algoritma DFS (Depth First Search).
- * DFS konsepnya seperti mencari tempat dari dari ujung jalan ke ujung jalan sampai ketemu tempat yang dicari,
- * baru dia mau balik arah (backtracking).
+ * DFS konsepnya seperti mencari tempat dari dari ujung jalan ke ujung jalan kalau udah mentok 
+ * baru dia mau balik arah (backtracking). Looping terus menerus sampai ketemu tempat yang dicari,
  * 
  * Alur algoritma nya:
  * 
@@ -88,38 +88,39 @@ void PathFinder::UpdateBFS(Grid &grid) {
  * @details Misal node awal 25 memiliki tetangga {15, 24, 35, 26} maka Push ke stack menjadi {26, 35, 24, 15}
  * @details Langkah 1: Ambil stack (tumpukkan) pertama yaitu 26
  * @details Langkah 2: lalu Pop() menjadi {35, 24, 15}.
- * @details Langkah 3: Masukkan tetangganya 15 yang belum dikunjungi yaitu {5, 14, 16}, maka stack menjadi {16, 14, 5, 35, 24, 15}
+ * @details Langkah 3: Masukkan tetangganya 26 yang belum dikunjungi yaitu {16, 36, 27}, maka stack menjadi {27, 36, 16, 35, 24, 15}
  * @details Langkah 4: node 15 berubah status menjadi visited (telah dikunjungi)
- * @details dan loop terus menerus sampai mengunjungi node akhir.
+ * @details dan loop terus menerus sampai mengunjungi node (sel) akhir.
  * 
  */
 void PathFinder::UpdateDFS(Grid &grid) {
-    if(myStack.IsEmpty()) {
-        grid.parent.Insert(grid.GetStartCell(), -1);
-        myStack.Push(grid.GetStartCell());
+  if(DFS_Stack.IsEmpty()) {
+    grid.parent.Insert(grid.GetStartCell(), -1);
+    DFS_Stack.Push(grid.GetStartCell());
+  }
+
+  int current_node = DFS_Stack.Top();
+
+  if(current_node != grid.GetStartCell() && current_node != grid.GetEndCell())
+    grid.cell_state[current_node] = CellState::Visited;
+
+  if(current_node == grid.GetEndCell()) {
+    target_found = true;
+        std::cout << "Found\n";
+    return;
+  }
+
+  DFS_Stack.Pop();
+
+  for(int neighbor : grid.neighbors[current_node]) {
+    if(grid.cell_state[neighbor] == CellState::Idle || neighbor == grid.GetEndCell()) {
+      if(grid.cell_state[neighbor] != CellState::End) {
+          grid.cell_state[neighbor] = CellState::InStack;
+      }
+      grid.parent.Insert(neighbor, current_node);
+      DFS_Stack.Push(neighbor);
     }
-
-    int current_node = myStack.Top();
-
-    if(current_node != grid.GetStartCell() && current_node != grid.GetEndCell())
-      grid.cell_state[current_node] = CellState::Visited;
-
-    if(current_node == grid.GetEndCell()) {
-        target_found = true;
-        return;
-    }
-
-    myStack.Pop();
-
-    for(int neighbor : grid.adjacent[current_node]) {
-        if(grid.cell_state[neighbor] == CellState::Idle || neighbor == grid.GetEndCell()) {
-            if(grid.cell_state[neighbor] != CellState::End) {
-                grid.cell_state[neighbor] = CellState::InStack;
-            }
-            grid.parent.Insert(neighbor, current_node);
-            myStack.Push(neighbor);
-        }
-    }
+  }
 }
 
 /**
@@ -143,12 +144,24 @@ void PathFinder::UpdateDFS(Grid &grid) {
  * 
  * @param grid referensi ke data grid
  */
-void PathFinder::FindShortestPath(Grid &grid) {
-    if(backtrack_at != -1) {
-        grid.path.push_back(backtrack_at); //search value dengan key 
-        backtrack_at = grid.parent.Search(backtrack_at);
-        if(backtrack_at != -1 && backtrack_at != grid.GetStartCell()) {
-            grid.cell_state[backtrack_at] = CellState::Path;
-        }
+void PathFinder::FindPath(Grid &grid) {
+  std::cout << backtrack_at << "\n";
+  if(backtrack_at != -1) {
+    grid.path.push_back(backtrack_at); //search value dengan key 
+    backtrack_at = grid.parent.Search(backtrack_at);
+    std::cout << backtrack_at << " setelah\n";
+      if(backtrack_at != -1 && backtrack_at != grid.GetStartCell()) {
+        grid.cell_state[backtrack_at] = CellState::Path;
+      }
     }
+}
+
+void PathFinder::Reset() {
+    BFS_Queue.Clear();
+    DFS_Stack.Clear();
+    target_found = false;
+}
+
+bool PathFinder::IsTargetFound() {
+    return target_found;
 }

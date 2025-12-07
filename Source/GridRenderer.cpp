@@ -52,17 +52,16 @@ void GridRenderer::DrawGrid(sf::RenderWindow &window, Grid &grid) {
 
 /**
  * @brief Mengkonversi koordinat Grid 2D (kolom, baris) menjadi indeks array 1D (Linear).
- * * Fungsi ini melakukan pengecekan batas (bounds checking) terlebih dahulu.
- * * @param x Indeks kolom pada grid.
+ * Fungsi ini melakukan pengecekan batas (bounds checking) terlebih dahulu.
+ * @param x Indeks kolom pada grid.
  * @param y Indeks baris pada grid.
- * @param grid Referensi objek Grid untuk mendapatkan dimensi (jumlah baris & kolom).
+ * @param grid Referensi objek Grid untuk mendapatkan jumlah baris & kolom.
  * @return int Indeks array linear jika valid, atau -1 jika koordinat berada di luar batas grid.
  */
 int GridRenderer::GetIndex(int x, int y, Grid &grid) {
   if (x < 0 || x >= grid.GetCollumn() || y < 0 || y >= grid.GetRow()) return -1; //mencegah saat klik di luar koordinat grid berdasarkan indeks
-  std::cout << x << " " << y << "\n";
   return y * grid.GetCollumn() + x;
-}
+} 
 
 /**
  * @brief Memodifikasi status sel pada grid (menggambar tembok, set start/end) berdasarkan input mouse.
@@ -74,16 +73,20 @@ int GridRenderer::GetIndex(int x, int y, Grid &grid) {
  * @param grid   Referensi ke objek Grid yang akan dimodifikasi status selnya.
  * 
  * @note Fungsi ini memiliki validasi untuk mencegah penimpaan titik Start/End secara tidak sengaja.
+ * 
  */
 void GridRenderer::BrushTool(sf::RenderWindow &window, CellModifier brush, sf::Vector2i mouse_pos, Grid &grid) {
   int index = GetIndex(mouse_pos.x/grid.GetGridSize(), mouse_pos.y/grid.GetGridSize(), grid);
-  std::cout << index << "\n";
 
   if(index == -1) return; //mencegah saat klik di luar koordinat grid berdasarkan indeks
 
   switch (brush) {
     case CellModifier::WallBrush:
-      if(grid.cell_state[index] == CellState::End || grid.cell_state[index] == CellState::Start) return;
+      if (  grid.cell_state[index]  == CellState::End     ||
+            grid.cell_state[index]  == CellState::Start   ||
+            grid.cell_state[index]  == CellState::InQueue ||
+            grid.cell_state[index]  == CellState::InStack ||
+            grid.cell_state[index]  == CellState::Visited) return;
 
       grid.cell_state[index] = CellState::Wall;
       break;
@@ -102,7 +105,12 @@ void GridRenderer::BrushTool(sf::RenderWindow &window, CellModifier brush, sf::V
       grid.SetEndCell(index);
       break;
     case CellModifier::Erase:
-      if(grid.cell_state[index] == CellState::End || grid.cell_state[index] == CellState::Start) return;
+      if (grid.cell_state[index]  == CellState::End     ||
+          grid.cell_state[index]  == CellState::Start   ||
+          grid.cell_state[index]  == CellState::InQueue ||
+          grid.cell_state[index]  == CellState::InStack ||
+          grid.cell_state[index]  == CellState::Visited ) return;
+            
       grid.cell_state[index] = CellState::Idle;
     default:
       break;

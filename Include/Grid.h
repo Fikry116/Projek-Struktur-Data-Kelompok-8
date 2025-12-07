@@ -42,7 +42,7 @@ private:
     
   
 public:
-  std::vector<std::vector<int>> adjacent;
+  std::vector<std::vector<int>> neighbors;
   std::vector<CellState> cell_state;
   std::vector<int> path;
   Tree parent;
