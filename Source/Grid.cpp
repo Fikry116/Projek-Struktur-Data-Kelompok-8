@@ -1,15 +1,52 @@
 #include "Grid.h"
 
+/**
+ * @brief Setup member grid (Grid Constructor).
+ *
+ * Di sini inisialisasi papan grid berdasarkan ukuran layar.
+ * 
+ * Logic-nya:
+ * - Hitung berapa banyak kotak yang muat di layar (berdasarkan width/height).
+ * 
+ * - Siapin memori (resize vector) buat nampung status tiap kotak.
+ * 
+ * - Tandain posisi Start (Awal) dan End (Target) biar algoritma tau tujuannya.
+ * 
+ * - Panggil InitGrid() buat nyambungin jalan antar kotak (daftar tetangga).
+ *
+ * @param start Index posisi awal (titik mulai).
+ * @param end Index posisi target (tujuan akhir).
+ * @param width Lebar layar window (pixel).
+ * @param height Tinggi layar window (pixel).
+ * 
+ */
 Grid::Grid(int start,int end, unsigned int width, unsigned int height) 
   : start_cell(start), end_cell(end), window_width(width), window_height(height) {
-    SIZE_GRID = 40.f;
-    collumn = width / SIZE_GRID;
-    row = height / SIZE_GRID;
-    TOTAL_GRID = collumn * row;
-    cell_state.resize(TOTAL_GRID, CellState::Idle);
-    adjacent.resize(TOTAL_GRID);
+    //inisialisasi ukuran grid (kotak)
+    size_grid= 40.f;
+
+    //hitung kolom berdasarkan lebar window/ukuran grid
+    collumn = width / size_grid;
+    
+    //inisialisasi banyak baris berdasarkan tinggi window/ukuran grid
+    row = height / size_grid;
+    
+    //total grid adalah kolom * baris
+    total_grid = collumn * row;
+
+    //inisialisasi seluruh grid dengan status grid sebagai idle (nganggur), dan ubah ukuran sebanyak total grid
+    cell_state.resize(total_grid, CellState::Idle);
+
+    //menyesuaikan ukuran menjadi total grid
+    adjacent.resize(total_grid);
+
+    //inisialisasi status pada indeks start cell adalah Start
     cell_state[start_cell] = CellState::Start;
+
+    //inisialisasi status pada indeks end cell adalah End
     cell_state[end_cell] = CellState::End;
+
+    //memanggil prosedur InitGrid() untuk menginisialisasi adjacent beserta tetangganya
     InitGrid();
 }
 /**
@@ -33,7 +70,7 @@ int Grid::GetRow() {
  * @return ukuran sel (float)
  */
 float Grid::GetGridSize() {
-    return SIZE_GRID;
+    return size_grid;
 }
 
 /**
@@ -57,7 +94,7 @@ int Grid::GetEndCell() {
  * @return banyaknya sel dalam grid
  */
 int Grid::GetTotalGrid() {
-    return TOTAL_GRID;
+    return total_grid;
 }
 
 /**
@@ -76,14 +113,12 @@ void Grid::SetStartCell(int index) {
     start_cell = index;
 }
 
+//Inisialisasi grid ke-i beserta memetakan tetangga yang ada di sampingnya (atas/kiri/bawah/kanan) bila ada.
 void Grid::InitGrid() {
-    for(int i = 0; i < TOTAL_GRID; i++) {
+    for(int i = 0; i < total_grid; i++) {
         if (i - collumn >= 0) adjacent[i].push_back(i - collumn);      // atas
         if (i % collumn != 0) adjacent[i].push_back(i - 1);         // kiri
-        if (i + collumn < TOTAL_GRID) adjacent[i].push_back(i + collumn); // bawah
-        if ((i + 1) % collumn != 0) adjacent[i].push_back(i + 1);
+        if (i + collumn < total_grid) adjacent[i].push_back(i + collumn); // bawah
+        if ((i + 1) % collumn != 0) adjacent[i].push_back(i + 1);  //kanan
     }
-    // parent.Insert(start_cell, -1);
 }
-
-// void Grid::

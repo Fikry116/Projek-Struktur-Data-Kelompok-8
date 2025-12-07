@@ -19,6 +19,18 @@ enum class AppState {
   DFS
 };
 
+/**
+ * @brief Main Engine / Jantung dari aplikasi visualisasi ini.
+ *
+ * Struct ini adalah yang mengelola semua hal:
+ * - Jendela aplikasi (Window).
+ * 
+ * - Aset visual & audio (Font, Sound).
+ * 
+ * - Logika permainan (State, Input).
+ * 
+ * - Komponen inti (Grid, Renderer, Pathfinder).
+ */
 struct App {
 private:
   sf::RenderWindow window;
@@ -42,6 +54,7 @@ public:
     * @brief Konstruktor untuk applikasi yang menginisialisasikan semua member struct App
     * @param width lebar window
     * @param height tinggi window
+    * 
     */
   App(unsigned int width, unsigned int height)
     : window(sf::VideoMode({width, height}), "GG"), 
@@ -78,9 +91,9 @@ public:
 
   /**
    * @brief Menentukan transisi state aplikasi berdasarkan interaksi klik mouse.
-   * * Fungsi ini melakukan "Hit Test" pada elemen UI (DFS/BFS). Jika kursor berada 
+   * Fungsi ini melakukan "Hit Test" pada elemen UI (DFS/BFS). Jika kursor berada 
    * di dalam area bounding box teks saat diklik, fungsi akan mengembalikan state baru.
-   * * @param mouse_pos Koordinat kursor mouse relatif terhadap window (Screen Space).
+   * @param mouse_pos Koordinat kursor mouse relatif terhadap window (Screen Space).
    * @return AppState Target state selanjutnya (DFS/BFS). Mengembalikan AppState::MainMenu 
    * jika klik dilakukan di area kosong (tidak ada menu yang dipilih).
    */
@@ -132,13 +145,20 @@ public:
 
   /**
    * @brief Siklus utama aplikasi (Main Game Loop).
-   * * Fungsi ini menangani siklus hidup aplikasi yang mencakup:
-   * 1. **Event Polling**: Menangani input diskrit (keypress, resize, close).
-   * 2. **Real-time Input**: Menangani input continuous (mouse drag untuk menggambar).
-   * 3. **Logic Update**: Mengatur transisi state (Menu <-> Algoritma) dan tool modifier.
-   * 4. **Rendering**: Membersihkan layar, menggambar objek berdasarkan state aktif, dan menampilkannya (Double Buffering).
-   * * @note Loop ini akan terus berjalan selama window terbuka.
-   * @details Key mapping: [W] Wall, [S] Start Node, [E] End Node, [Right Click] Erase.
+   * Fungsi ini menangani siklus hidup aplikasi yang mencakup:
+   * 
+   * 1. Event Polling: Menangani input diskrit (keypress, resize, close).
+   * 
+   * 2. Real-time Input: Menangani input continuous (mouse drag untuk menggambar).
+   * 
+   * 3. Logic Update: Mengatur transisi state (Menu <-> Algoritma) dan tool modifier.
+   * 
+   * 4. Rendering: Membersihkan layar, menggambar objek berdasarkan state aktif, dan menampilkannya (Double Buffering).
+   * 
+   * @note Loop ini akan terus berjalan selama window terbuka.
+   * 
+   * @details Key mapping: [W] Wall, [S] Start Node, [E] End Node, [Right Click] Erase, [Space] Mulai loop BFS/DFS.
+   * 
    */
   void run() {
     while(window.isOpen()) {
@@ -154,7 +174,7 @@ public:
           
         } else if (event.getIf<sf::Event::Closed>()) { //event window ditutup
           window.close();
-        } else if (event.is<sf::Event::KeyPressed>()) {
+        } else if (event.is<sf::Event::KeyPressed>()) { //event ketika keyboard ditekan
           if(sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Escape) && current_app != AppState::MainMenu) {
             current_app = AppState::MainMenu;
             
@@ -176,12 +196,11 @@ public:
           } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Right)) {
               finder.UpdateBFS(myGrid);
           }
-        } else if (event.is<sf::Event::MouseMoved>()) {
+        } else if (event.is<sf::Event::MouseMoved>()) { //event kontinu ketika mouse bergerak secara real time
           sf::Vector2i mouse_pos = sf::Mouse::getPosition(window); //mengambil posisi mouse
           if(current_app == AppState::MainMenu) CheckMenuCollision(mouse_pos);
         }
       }
-
       //gambar tembok/set start/set end 
       if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) { //event kalau mouse diklik
         sf::Vector2i mouse_pos = sf::Mouse::getPosition(window); //mengambil posisi mouse
@@ -195,7 +214,7 @@ public:
         myRenderer.BrushTool(window, CellModifier::Erase, mouse_pos, myGrid);
       }
       
-      window.clear(sf::Color(40, 42, 54));//background window
+      window.clear(sf::Color(40, 42, 54));//background window dan setting ulang tampilan window
       
       switch (current_app) {
         case AppState::MainMenu: //ketika app state adalah main menu, tampilkan main menu
@@ -206,9 +225,7 @@ public:
         myRenderer.DrawGrid(window, myGrid);
         if(!paused && !finder.target_found) {
           finder.UpdateBFS(myGrid);
-          // std::cout << "Pathfinder\n";
         } else if(finder.target_found){
-          // std::cout << "find\n";
           finder.FindShortestPath(myGrid);
         }
         break;
@@ -216,16 +233,13 @@ public:
         myRenderer.DrawGrid(window, myGrid);
         if(!paused && !finder.target_found) {
           finder.UpdateDFS(myGrid);
-          // std::cout << "Pathfinder\n";
         } else if(finder.target_found){
-          // std::cout << "find\n";
           finder.FindShortestPath(myGrid);
         }
         break;
       default:
         break;
       }
-      // std::cout << "DFS\n";
       window.display(); //mengupdate tampilan window.
     }
   }
