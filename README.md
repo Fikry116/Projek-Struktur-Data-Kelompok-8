@@ -27,17 +27,17 @@ Secara sederhana, program ini adalah simulasi visual yang menunjukkan bagaimana 
 
 🚀 Cara Menjalankan Aplikasi
 Anda tidak perlu menginstal software pemrograman rumit untuk mencoba aplikasi ini. Cukup ikuti langkah berikut:
-Pastikan Anda menggunakan sistem operasi Windows.
 
-Buka folder bernama App.    
-
-Cari file bernama main.exe.
+    Past ikan Anda menggunakan sistem operasi Windows.
+    Buka folder bernama App.    
+    Cari file bernama main.exe.
 
 Klik dua kali pada file tersebut untuk memulai program.
 
   
 📂 Struktur Folder
-Bagi yang tertarik dengan kode programnya, berikut penjelasan singkat isi folder kami:
-App: Berisi aplikasi yang siap dijalankan beserta aset pendukung (suara & font).
-Include: Berisi file header (.h) yang mendefinisikan struktur program.
-Source: Berisi kode utama (.cpp) tempat logika program (seperti PathFinder, Grid, dll) bekerja.
+Berikut penjelasan singkat isi folder:
+
+    App: Berisi aplikasi yang siap dijalankan beserta aset pendukung (suara & font).
+    Include: Berisi file header (.h) yang mendefinisikan struktur program.
+    Source: Berisi kode utama (.cpp) tempat logika program (seperti PathFinder, Grid, dll) bekerja.
