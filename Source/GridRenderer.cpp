@@ -91,14 +91,14 @@ void GridRenderer::BrushTool(sf::RenderWindow &window, CellModifier brush, sf::V
       grid.cell_state[index] = CellState::Wall;
       break;
     case CellModifier::SetStart:
-      if(index == grid.GetStartCell()) return;
+      if(index == grid.GetStartCell() || index == grid.GetEndCell()) return;
 
       grid.cell_state[index] = CellState::Start;
       grid.cell_state[grid.GetStartCell()] = CellState::Idle;
       grid.SetStartCell(index);
       break;
     case CellModifier::SetEnd:
-      if(index == grid.GetEndCell()) return;
+      if(index == grid.GetEndCell() || index == grid.GetStartCell()) return;
 
       grid.cell_state[index] = CellState::End;
       grid.cell_state[grid.GetEndCell()] = CellState::Idle;

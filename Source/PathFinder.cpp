@@ -106,6 +106,7 @@ void PathFinder::UpdateDFS(Grid &grid) {
 
   if(current_node == grid.GetEndCell()) {
     target_found = true;
+    backtrack_at = grid.GetEndCell();
         std::cout << "Found\n";
     return;
   }

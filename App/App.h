@@ -148,7 +148,7 @@ public:
 
   /**
    * @brief Siklus utama aplikasi (Main Game Loop).
-   * Fungsi ini menangani siklus hidup aplikasi yang mencakup:
+   * Fungsi ini menangani:
    * 
    * 1. Event Polling: Menangani input diskrit (keypress, resize, close).
    * 
