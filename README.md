@@ -26,13 +26,13 @@ Secara sederhana, program ini adalah simulasi visual yang menunjukkan bagaimana 
     -R untuk mengatur ulang inisialisasi status sel, pohon, dan queue/stack.
 
 🚀 Cara Menjalankan Aplikasi
-Anda tidak perlu menginstal software pemrograman rumit untuk mencoba aplikasi ini. Cukup ikuti langkah berikut:
+    Tidak perlu menginstal software pemrograman lainnya untuk mencoba aplikasi ini. Cukup ikuti langkah berikut:
 
-    Past ikan Anda menggunakan sistem operasi Windows.
+    Pastikan komputernya menggunakan sistem operasi Windows.
+    Download zip file ini dari github, ekstrak folder dimanapun kalian mau.
     Buka folder bernama App.    
     Cari file bernama main.exe.
-
-Klik dua kali pada file tersebut untuk memulai program.
+    Klik dua kali pada file tersebut untuk memulai program.
 
   
 📂 Struktur Folder

@@ -47,7 +47,7 @@ private:
 
   Grid myGrid;
   GridRenderer myRenderer;
-  PathFinder pathFinder;
+  PathFinder myPathFinder;
 
   bool paused;
   bool isEverPlayed;
@@ -59,9 +59,9 @@ public:
     * 
     */
   App(unsigned int width, unsigned int height)
-    : window(sf::VideoMode({width, height}), "GG"), 
+    : window(sf::VideoMode({width, height}), "Visualisasi Path Finding"), 
       DFS(font, "DFS"), BFS(font, "BFS"), menu_sound(buffer_menu), menu_click(buffer_menu_click),
-      myGrid(55, 135, width, height), myRenderer(myGrid.GetGridSize()), pathFinder(myGrid) {
+      myGrid(55, 135, width, height), myRenderer(myGrid.GetGridSize()), myPathFinder(myGrid) {
 
         if(!font.openFromFile("ARIAL.TTF")) {
             std::cerr << "File not found\n";
@@ -128,20 +128,25 @@ public:
         menu_sound.play();
         DFS.setScale(sf::Vector2f({1.15f, 1.15f}));
       } 
-      DFS.setFillColor(sf::Color(136, 192, 208));
-      BFS.setFillColor(sf::Color(216, 222, 233));
+      DFS.setFillColor(sf::Color(136, 192, 208));//set warna ketika bersentuhan dengan kursor
+      BFS.setFillColor(sf::Color(216, 222, 233));//set warna awal BFS
       BFS.setScale(sf::Vector2f({1.f, 1.f}));
       return;
-    }
-    if(BFS.getGlobalBounds().contains(mouse_pos_f)) {
+    } else if(BFS.getGlobalBounds().contains(mouse_pos_f)) {
       if(BFS.getFillColor() == sf::Color(216, 222, 233)) {
           menu_sound.play();
           BFS.setScale(sf::Vector2f({1.15f, 1.15f}));
       } 
-      BFS.setFillColor(sf::Color(136, 192, 208));
-      DFS.setFillColor(sf::Color(216, 222, 233));
+      BFS.setFillColor(sf::Color(136, 192, 208));//set warna ketika bersentuhan dengan kursor
+      DFS.setFillColor(sf::Color(216, 222, 233));//set warna awal DFS
       DFS.setScale(sf::Vector2f({1.f, 1.f}));
       return;
+    } else {
+      DFS.setFillColor(sf::Color(216, 222, 233));
+      BFS.setFillColor(sf::Color(216, 222, 233));
+      DFS.setScale(sf::Vector2f({1.f, 1.f}));
+      BFS.setScale(sf::Vector2f({1.f, 1.f}));
+      
     }
     return;
   }
@@ -181,6 +186,10 @@ public:
         } else if (event.is<sf::Event::KeyPressed>()) { //event ketika keyboard ditekan
           if(sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Escape) && current_app != AppState::MainMenu) {
             current_app = AppState::MainMenu;
+            myGrid.ResetState();
+            myPathFinder.Reset();
+            isEverPlayed = false;
+            paused = true;
             
             //setting ulang skala dan warna 
             DFS.setFillColor(sf::Color(216, 222, 233));
@@ -198,7 +207,7 @@ public:
 
           } else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::R)) {
             myGrid.ResetState();
-            pathFinder.Reset();
+            myPathFinder.Reset();
             isEverPlayed = false;
             paused = true;
 
@@ -209,10 +218,13 @@ public:
 
           } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Right)) {
             if(current_app == AppState::BFS)
-              pathFinder.UpdateBFS(myGrid);
+              myPathFinder.UpdateBFS(myGrid);
 
             if(current_app == AppState::DFS)
-              pathFinder.UpdateDFS(myGrid);
+              myPathFinder.UpdateDFS(myGrid);
+
+          } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::D)) {
+            mode_kuas = CellModifier::Erase;
           }
         } else if (event.is<sf::Event::MouseMoved>()) { //event kontinu ketika mouse bergerak secara real time
           sf::Vector2i mouse_pos = sf::Mouse::getPosition(window); //mengambil posisi mouse
@@ -242,18 +254,18 @@ public:
         break;
       case AppState::BFS: //ketika app state adalah BFS, tampilkan BFS
         myRenderer.DrawGrid(window, myGrid);
-        if(!paused && !pathFinder.IsTargetFound()) {
-          pathFinder.UpdateBFS(myGrid);
-        } else if(pathFinder.IsTargetFound()) {
-          pathFinder.FindPath(myGrid);
+        if(!paused && !myPathFinder.IsTargetFound()) {
+          myPathFinder.UpdateBFS(myGrid);
+        } else if(myPathFinder.IsTargetFound()) {
+          myPathFinder.FindPath(myGrid);
         }
         break;
       case AppState::DFS: //ketika app state adalah DFS, tampilkan DFS
         myRenderer.DrawGrid(window, myGrid);
-        if(!paused && !pathFinder.IsTargetFound()) {
-          pathFinder.UpdateDFS(myGrid);
-        } else if(pathFinder.IsTargetFound()) {
-          pathFinder.FindPath(myGrid);
+        if(!paused && !myPathFinder.IsTargetFound()) {
+          myPathFinder.UpdateDFS(myGrid);
+        } else if(myPathFinder.IsTargetFound()) {
+          myPathFinder.FindPath(myGrid);
         }
         break;
       default:

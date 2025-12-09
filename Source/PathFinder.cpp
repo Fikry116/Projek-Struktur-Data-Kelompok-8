@@ -19,9 +19,9 @@ PathFinder::PathFinder(Grid &grid) : backtrack_at(grid.GetEndCell()) {
  * 
  * 4. Kalau ketemu Target (End Cell), update selesai.
  * 
- * 5. Kalau belum, cari tetangga yang masih "Idle" (belum dikunjungi), masukin ke queue.
+ * 5. Kalau belum, cari tetangga yang masih 'Idle' (belum dikunjungi), masukin ke queue.
  * 
- * * @param grid Referensi ke object Grid 
+ * @param grid Referensi ke object Grid 
  * 
  * @details Misal node awal 25 memiliki tetangga {15, 24, 35, 26} maka Enqueue ke queue menjadi {15, 24, 35, 26}
  * @details Langkah 1: Ambil queue pertama yaitu 15
@@ -50,7 +50,6 @@ void PathFinder::UpdateBFS(Grid &grid) {
   if(current_node == grid.GetEndCell()) {
     target_found = true;
     backtrack_at = grid.GetEndCell();
-    std::cout << "Found\n";
     return;
   }
   BFS_Queue.Dequeue();
@@ -107,7 +106,6 @@ void PathFinder::UpdateDFS(Grid &grid) {
   if(current_node == grid.GetEndCell()) {
     target_found = true;
     backtrack_at = grid.GetEndCell();
-        std::cout << "Found\n";
     return;
   }
 
@@ -146,11 +144,9 @@ void PathFinder::UpdateDFS(Grid &grid) {
  * @param grid referensi ke data grid
  */
 void PathFinder::FindPath(Grid &grid) {
-  std::cout << backtrack_at << "\n";
   if(backtrack_at != -1) {
     grid.path.push_back(backtrack_at); //search value dengan key 
     backtrack_at = grid.parent.Search(backtrack_at);
-    std::cout << backtrack_at << " setelah\n";
       if(backtrack_at != -1 && backtrack_at != grid.GetStartCell()) {
         grid.cell_state[backtrack_at] = CellState::Path;
       }
