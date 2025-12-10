@@ -92,26 +92,26 @@ public:
         isEverPlayed = false;
   }
 
-  /**
-   * @brief Menentukan transisi state aplikasi berdasarkan interaksi klik mouse.
-   * Fungsi ini melakukan "Hit Test" pada elemen UI (DFS/BFS). Jika kursor berada 
-   * di dalam area bounding box teks saat diklik, fungsi akan mengembalikan state baru.
-   * @param mouse_pos Koordinat kursor mouse relatif terhadap window (Screen Space).
-   * @return AppState Target state selanjutnya (DFS/BFS). Mengembalikan AppState::MainMenu 
-   * jika klik dilakukan di area kosong (tidak ada menu yang dipilih).
-   */
-  AppState ClickedMenu(sf::Vector2i mouse_pos) {
-    sf::Vector2f mouse_pos_f(static_cast<float>(mouse_pos.x), static_cast<float>(mouse_pos.y));
-    if(DFS.getGlobalBounds().contains(mouse_pos_f)) { //mengecek apakah posisi mouse berada di string DFS
-      menu_click.play();
-      return AppState::DFS;
-    }
-    if(BFS.getGlobalBounds().contains(mouse_pos_f)) { //mengecek apakah posisi mouse berada di string BFS
-      menu_click.play();
-      return AppState::BFS;
-    }
-    return AppState::MainMenu;
+/**
+ * @brief Menentukan transisi state aplikasi berdasarkan interaksi klik mouse.
+ * Fungsi ini melakukan "Hit Test" pada elemen UI (DFS/BFS). Jika kursor berada 
+ * di dalam area bounding box teks saat diklik, fungsi akan mengembalikan state baru.
+ * @param mouse_pos Koordinat kursor mouse relatif terhadap window (Screen Space).
+ * @return AppState Target state selanjutnya (DFS/BFS). Mengembalikan AppState::MainMenu 
+ * jika klik dilakukan di area kosong (tidak ada menu yang dipilih).
+ */
+AppState ClickedMenu(sf::Vector2i mouse_pos) {
+  sf::Vector2f mouse_pos_f(static_cast<float>(mouse_pos.x), static_cast<float>(mouse_pos.y));
+  if(DFS.getGlobalBounds().contains(mouse_pos_f)) { //mengecek apakah posisi mouse berada di string DFS
+    menu_click.play();
+    return AppState::DFS;
   }
+  if(BFS.getGlobalBounds().contains(mouse_pos_f)) { //mengecek apakah posisi mouse berada di string BFS
+    menu_click.play();
+    return AppState::BFS;
+  }
+  return AppState::MainMenu;
+}
 
   /**
    * @brief Menangani logika visual saat kursor berada di atas menu.

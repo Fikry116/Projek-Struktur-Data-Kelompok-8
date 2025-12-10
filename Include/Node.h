@@ -1,4 +1,4 @@
-#pragma once
+#pragma once 
 struct Node {
     int val;
     Node *next;
@@ -13,5 +13,4 @@ struct TreeNode {
   TreeNode *parent, *left, *right;
 
   TreeNode(int key, int value, TreeNode *prnt, TreeNode *l = nullptr, TreeNode *r = nullptr);
-
 };

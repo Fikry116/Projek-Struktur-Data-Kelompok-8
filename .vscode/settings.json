@@ -64,5 +64,8 @@
         "typeinfo": "cpp",
         "variant": "cpp",
         "cinttypes": "cpp"
-    }
+    },
+    "codesnap.realLineNumbers": true,
+    "codesnap.boxShadow": "rgba(0, 0, 0, 0.55) 0px 5px 5px",
+    "codesnap.showWindowTitle": true
 }

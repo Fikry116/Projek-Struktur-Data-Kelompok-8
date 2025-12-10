@@ -47,7 +47,7 @@ Grid::Grid(int start,int end, unsigned int width, unsigned int height)
   cell_state[end_cell] = CellState::End;
 
   //memanggil prosedur InitGrid() untuk menginisialisasi neighbors beserta tetangganya
-  InitGrid();
+  InitAdjacent();
 }
 /**
  * Getter kolom
@@ -114,7 +114,7 @@ void Grid::SetStartCell(int index) {
 }
 
 //Inisialisasi grid ke-i beserta memetakan tetangga yang ada di sampingnya (atas/kiri/bawah/kanan) bila ada.
-void Grid::InitGrid() {
+void Grid::InitAdjacent() {
   for(int i = 0; i < total_grid; i++) {
     if (i - collumn >= 0) neighbors[i].push_back(i - collumn);      // atas
     if (i % collumn != 0) neighbors[i].push_back(i - 1);         // kiri

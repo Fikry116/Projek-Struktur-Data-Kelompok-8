@@ -147,16 +147,16 @@ void PathFinder::FindPath(Grid &grid) {
   if(backtrack_at != -1) {
     grid.path.push_back(backtrack_at); //search value dengan key 
     backtrack_at = grid.parent.Search(backtrack_at);
-      if(backtrack_at != -1 && backtrack_at != grid.GetStartCell()) {
-        grid.cell_state[backtrack_at] = CellState::Path;
-      }
+    if(backtrack_at != -1 && backtrack_at != grid.GetStartCell()) {
+      grid.cell_state[backtrack_at] = CellState::Path;
     }
+  }  
 }
 
 void PathFinder::Reset() {
-    BFS_Queue.Clear();
-    DFS_Stack.Clear();
-    target_found = false;
+  BFS_Queue.Clear();
+  DFS_Stack.Clear();
+  target_found = false;
 }
 
 bool PathFinder::IsTargetFound() {

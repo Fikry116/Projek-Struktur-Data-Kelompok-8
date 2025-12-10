@@ -1,4 +1,4 @@
-#include "Tree.h"
+#include "Tree.h" 
 
 TreeNode::TreeNode(int key, int value, TreeNode *prnt, TreeNode *l, TreeNode *r) 
   : Key(key), Value(value), parent(prnt), left(l), right(r) {}

@@ -1,6 +1,4 @@
 #include "GridRenderer.h"
-#include <algorithm>
-#include <random>
 
 //Konstruktor untuk GridRender yang menginisialisasi ukuran dari sell
 GridRenderer::GridRenderer(float size) :cell_size(size) {

@@ -1,5 +1,4 @@
 #pragma once
-//struct grid buat BFS sama DFS
 #include <iostream>
 #include <SFML/Graphics.hpp>
 #include <vector> 
@@ -19,9 +18,7 @@ enum class CellState {
     End       ///< Status sel untuk titik akhir
  };
 
-/**
- * @brief Mode kuas untuk mengatur tembok, set awal, set akhir, dan hapus tembok
- */
+//Mode kuas untuk mengatur tembok, set awal, set akhir, dan hapus tembok
 enum class CellModifier {
     WallBrush,  ///< Mode untuk mengecat tembok
     SetStart,   ///< Mode untuk mengatur titik awal
@@ -58,5 +55,5 @@ public:
   void SetEndCell(int index);
   void SetStartCell(int index);
   void ResetState();
-  void InitGrid();
+  void InitAdjacent();
 };
