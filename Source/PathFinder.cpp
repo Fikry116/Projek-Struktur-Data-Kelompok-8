@@ -61,6 +61,7 @@ void PathFinder::UpdateBFS(Grid &grid) {
       }
       grid.parent.Insert(neighbor, current_node);
       BFS_Queue.Enqueue(neighbor);
+      
     }
   }
 }

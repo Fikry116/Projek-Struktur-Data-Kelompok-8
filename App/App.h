@@ -5,6 +5,7 @@
 #include "Grid.h"
 #include "GridRenderer.h"
 #include "PathFinder.h"
+#include "MazeGenerator.h"
 
 
 /**
@@ -48,9 +49,11 @@ private:
   Grid myGrid;
   GridRenderer myRenderer;
   PathFinder myPathFinder;
+  MazeGenerator myMazeGenerator;
 
   bool paused;
   bool isEverPlayed;
+  bool isMazeGenerating;
 public:
     /**
     * @brief Konstruktor untuk applikasi yang menginisialisasikan semua member struct App
@@ -61,7 +64,7 @@ public:
   App(unsigned int width, unsigned int height)
     : window(sf::VideoMode({width, height}), "Visualisasi Path Finding"), 
       DFS(font, "DFS"), BFS(font, "BFS"), menu_sound(buffer_menu), menu_click(buffer_menu_click),
-      myGrid(55, 135, width, height), myRenderer(myGrid.GetGridSize()), myPathFinder(myGrid) {
+      myGrid(55, 135, width, height), myRenderer(myGrid.GetGridSize()), myPathFinder(myGrid), myMazeGenerator(&myGrid) {
 
         if(!font.openFromFile("ARIAL.TTF")) {
             std::cerr << "File not found\n";
@@ -80,8 +83,8 @@ public:
         menu_sound.setBuffer(buffer_menu);
         menu_click.setBuffer(buffer_menu_click);
 
-        BFS.setPosition(sf::Vector2f({width / (2.f+1.f) * 1.f, height / 2.f}));
-        DFS.setPosition(sf::Vector2f({width / (2.f+1.f) * 2.f, height / 2.f}));
+        BFS.setPosition(sf::Vector2f({width / (3.f) * 1.f, height / 2.f}));
+        DFS.setPosition(sf::Vector2f({width / (3.f) * 2.f, height / 2.f}));
 
         BFS.setFillColor(sf::Color(216, 222, 233));
         DFS.setFillColor(sf::Color(216, 222, 233));
@@ -90,6 +93,7 @@ public:
         mode_kuas = CellModifier::WallBrush;
         paused = true;
         isEverPlayed = false;
+        isMazeGenerating = false;
   }
 
 /**
@@ -190,6 +194,7 @@ AppState ClickedMenu(sf::Vector2i mouse_pos) {
             myPathFinder.Reset();
             isEverPlayed = false;
             paused = true;
+            isMazeGenerating = false;
             
             //setting ulang skala dan warna 
             DFS.setFillColor(sf::Color(216, 222, 233));
@@ -210,6 +215,7 @@ AppState ClickedMenu(sf::Vector2i mouse_pos) {
             myPathFinder.Reset();
             isEverPlayed = false;
             paused = true;
+            isMazeGenerating = false;
 
           } else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Space)) {
             paused = !paused;
@@ -225,6 +231,31 @@ AppState ClickedMenu(sf::Vector2i mouse_pos) {
 
           } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::D)) {
             mode_kuas = CellModifier::Erase;
+          
+          } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::M)) {
+            if ((current_app == AppState::BFS || current_app == AppState::DFS) && !isEverPlayed) {
+              myMazeGenerator.Reset();       // Setup awal
+              isMazeGenerating = true; // Nyalain animasinya
+            }
+          } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Up)) {
+            if (current_app == AppState::BFS || current_app == AppState::DFS) {
+              if(!isMazeGenerating) {
+                isMazeGenerating = true;
+                myMazeGenerator.Reset();
+              }
+              myMazeGenerator.Generate();
+            }
+          } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::T)) {
+            myMazeGenerator.ResetMaze();
+            myPathFinder.Reset();
+            myGrid.parent.Clear();
+            isEverPlayed = false;
+            paused = true;
+
+          } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Num1)) {
+            current_app = AppState::BFS;
+          } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Num2)) {
+            current_app = AppState::DFS;
           }
         } else if (event.is<sf::Event::MouseMoved>()) { //event kontinu ketika mouse bergerak secara real time
           sf::Vector2i mouse_pos = sf::Mouse::getPosition(window); //mengambil posisi mouse
@@ -245,6 +276,13 @@ AppState ClickedMenu(sf::Vector2i mouse_pos) {
         myRenderer.BrushTool(window, CellModifier::Erase, mouse_pos, myGrid);
       }
       
+      if (isMazeGenerating) {
+          bool processing = myMazeGenerator.Generate(); 
+          if (!processing) {
+              isMazeGenerating = false; // Stop animasi
+          }
+      }
+
       window.clear(sf::Color(40, 42, 54));//background window dan setting ulang tampilan window
       
       switch (current_app) {

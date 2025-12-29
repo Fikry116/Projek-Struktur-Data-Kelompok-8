@@ -5,6 +5,7 @@ class GridRenderer {
 private:
   sf::RectangleShape cell_shape;
   float cell_size;
+  Stack stack;
 public:
 
   GridRenderer(float size);
@@ -12,6 +13,7 @@ public:
   void DrawGrid(sf::RenderWindow &window, Grid &grid);
 
   void BrushTool(sf::RenderWindow &window, CellModifier brush, sf::Vector2i mouse_pos, Grid &grid);
+  void MazeGeneratorRandom(Grid &grid, sf::RenderWindow &window);
 
   int GetIndex(int x, int y, Grid &grid);
 };

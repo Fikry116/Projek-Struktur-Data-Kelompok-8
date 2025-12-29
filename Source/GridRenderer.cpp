@@ -1,8 +1,10 @@
 #include "GridRenderer.h"
+#include <algorithm>
+#include <random>
 
 //Konstruktor untuk GridRender yang menginisialisasi ukuran dari sell
 GridRenderer::GridRenderer(float size) :cell_size(size) {
-  cell_shape.setSize(sf::Vector2f({cell_size-1.f, cell_size-1.f}));
+  cell_shape.setSize(sf::Vector2f({cell_size, cell_size}));
 }
 
 /**
@@ -84,19 +86,20 @@ void GridRenderer::BrushTool(sf::RenderWindow &window, CellModifier brush, sf::V
             grid.cell_state[index]  == CellState::Start   ||
             grid.cell_state[index]  == CellState::InQueue ||
             grid.cell_state[index]  == CellState::InStack ||
+            grid.cell_state[index]  == CellState::Path    ||
             grid.cell_state[index]  == CellState::Visited) return;
 
       grid.cell_state[index] = CellState::Wall;
       break;
     case CellModifier::SetStart:
-      if(index == grid.GetStartCell() || index == grid.GetEndCell()) return;
+      if(index == grid.GetStartCell() || index == grid.GetEndCell() || grid.cell_state[index] == CellState::Wall) return;
 
       grid.cell_state[index] = CellState::Start;
       grid.cell_state[grid.GetStartCell()] = CellState::Idle;
       grid.SetStartCell(index);
       break;
     case CellModifier::SetEnd:
-      if(index == grid.GetEndCell() || index == grid.GetStartCell()) return;
+      if(index == grid.GetEndCell() || index == grid.GetStartCell() || grid.cell_state[index] == CellState::Wall) return;
 
       grid.cell_state[index] = CellState::End;
       grid.cell_state[grid.GetEndCell()] = CellState::Idle;

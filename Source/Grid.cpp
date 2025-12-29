@@ -23,7 +23,7 @@
 Grid::Grid(int start,int end, unsigned int width, unsigned int height) 
   : start_cell(start), end_cell(end), window_width(width), window_height(height) {
   //inisialisasi ukuran grid (kotak)
-  size_grid= 40.f;
+  size_grid= 20.f;
 
   //hitung kolom berdasarkan lebar window/ukuran grid
   collumn = width / size_grid;
@@ -35,16 +35,16 @@ Grid::Grid(int start,int end, unsigned int width, unsigned int height)
   total_grid = collumn * row;
 
   //inisialisasi seluruh grid dengan status grid sebagai idle (nganggur), dan ubah ukuran sebanyak total sel
-  cell_state.resize(total_grid, CellState::Idle);
+  cell_state.resize(total_grid, CellState::Wall);
 
   //menyesuaikan ukuran menjadi total grid
   neighbors.resize(total_grid);
 
   //inisialisasi status pada indeks start cell adalah Start
-  cell_state[start_cell] = CellState::Start;
+  // cell_state[start_cell] = CellState::Start;
 
   //inisialisasi status pada indeks end cell adalah End
-  cell_state[end_cell] = CellState::End;
+  // cell_state[end_cell] = CellState::End;
 
   //memanggil prosedur InitGrid() untuk menginisialisasi neighbors beserta tetangganya
   InitAdjacent();
@@ -125,9 +125,7 @@ void Grid::InitAdjacent() {
 
 void Grid::ResetState() {
   for(int i = 0 ; i < total_grid; i++) {
-    cell_state[i] = CellState::Idle;
+    cell_state[i] = CellState::Wall;
   }
-  cell_state[start_cell] = CellState::Start;
-  cell_state[end_cell] = CellState::End;
   parent.Clear();
 }
