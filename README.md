@@ -24,6 +24,7 @@ Secara sederhana, program ini adalah simulasi visual yang menunjukkan bagaimana 
     -S untuk mengubah ke mode kuas menjadi kuas untuk mengatur posisi sel awal.
     -E untuk mengubah ke mode kuas menjadi kuas untuk mengatur posisi sel akhir.
     -R untuk mengatur ulang inisialisasi status sel, pohon, dan queue/stack.
+    -M untuk generate maze (labirin) secara random.
 
 🚀 Cara Menjalankan Aplikasi
     Tidak perlu menginstal software pemrograman lainnya untuk mencoba aplikasi ini. Cukup ikuti langkah berikut:
